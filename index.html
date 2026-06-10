@@ -202,14 +202,31 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 
 /* ---------- hold buttons ---------- */
 .holdbtn {
-  position: relative; overflow: hidden; min-height: 56px; padding: 15px 36px;
-  border-radius: var(--radius);
+  position: relative; overflow: hidden; min-height: 56px; padding: 13px 36px;
+  border-radius: var(--radius); cursor: pointer;
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
   font-family: var(--font-display); font-weight: 800; text-transform: uppercase;
   letter-spacing: -0.01em; font-size: 20px; line-height: 1.05;
   touch-action: none;
+  transition: transform 0.12s ease, filter 0.12s ease;
 }
-.holdbtn .fill { position: absolute; inset: 0; width: 0%; pointer-events: none; }
+.holdbtn:hover { filter: brightness(1.15); }
+.holdbtn[data-holding] { transform: scale(0.965); filter: brightness(1.2); }
+.holdbtn .fill { position: absolute; inset: 0; width: 0%; pointer-events: none; opacity: 0; border-right: 2px solid currentColor; transition: opacity 0.1s; }
+.holdbtn[data-holding] .fill { opacity: 1; }
 .holdbtn .lbl { position: relative; }
+.holdbtn .hint {
+  position: relative; font-family: var(--font-body); font-weight: 600;
+  font-size: 10px; letter-spacing: 0.1em; opacity: 0.55;
+  transition: opacity 0.15s;
+}
+.holdbtn[data-nudge] { animation: llnudge 0.3s ease; }
+.holdbtn[data-nudge] .hint { opacity: 1; }
+@keyframes llnudge {
+  0%, 100% { transform: none; }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
 #firebtn { background: var(--accent); color: var(--on-accent); }
 #firebtn .fill { background: rgba(0, 43, 18, 0.30); }
 
@@ -289,6 +306,8 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 @media (prefers-reduced-motion: reduce) {
   #tap-begin, #priv-cont { animation: none; }
   .plate, #banner .btxt { transition: none; }
+  .holdbtn[data-nudge] { animation: none; }
+  .holdbtn { transition: none; }
 }
 </style>
 </head>
@@ -336,7 +355,7 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
     <div id="handoff-inner">
       <div id="passto">PASS TO &rarr;</div>
       <div class="display" id="passname"></div>
-      <button class="holdbtn" id="iam"><span class="fill"></span><span class="lbl"></span></button>
+      <button class="holdbtn" id="iam"><span class="fill"></span><span class="lbl"></span><span class="hint">HOLD TO CONFIRM</span></button>
     </div>
   </section>
 
@@ -1376,27 +1395,52 @@ function onceTap(el) {
 function holdPromise(el, ms) {
   return new Promise(res => {
     const fill = el.querySelector('.fill');
-    let pid = null, t0 = 0, raf = 0;
+    let src = null, t0 = 0, raf = 0; // active hold source: 'p<pointerId>' or 'k' (keyboard)
     const sc = makeScope();
-    const reset = () => { pid = null; cancelAnimationFrame(raf); fill.style.width = '0%'; };
+    const stop = () => {
+      src = null; cancelAnimationFrame(raf);
+      fill.style.width = '0%';
+      el.removeAttribute('data-holding');
+    };
+    const nudge = () => { // released too early: tell them it wants a hold
+      el.setAttribute('data-nudge', '');
+      sfx.click(0, 0.08);
+      setTimeout(() => el.removeAttribute('data-nudge'), 320);
+    };
     const tick = () => {
       const k = Math.min(1, (performance.now() - t0) / ms);
       fill.style.width = (k * 100) + '%';
-      if (k >= 1) { sc.kill(); reset(); sfx.uiTick(); res(true); }
+      if (k >= 1) { sc.kill(); stop(); sfx.uiTick(); res(true); }
       else raf = requestAnimationFrame(tick);
     };
-    sc.on(el, 'pointerdown', e => {
-      if (pid !== null) return;
-      pid = e.pointerId;
-      try { el.setPointerCapture(pid); } catch (err) {}
+    const start = s => {
+      if (src !== null) return;
+      src = s;
       t0 = performance.now();
+      el.setAttribute('data-holding', '');
       sfx.click(0, 0.12);
       tick();
+    };
+    const cancel = s => {
+      if (src === null || s !== src) return;
+      const held = performance.now() - t0;
+      stop();
+      if (held > 60) nudge();
+    };
+    sc.on(el, 'pointerdown', e => {
+      try { el.setPointerCapture(e.pointerId); } catch (err) {}
+      start('p' + e.pointerId);
     });
-    const cancel = e => { if (pid === null || (e && e.pointerId !== pid)) return; reset(); };
-    sc.on(el, 'pointerup', cancel);
-    sc.on(el, 'pointercancel', cancel);
-    sc.on(el, 'lostpointercapture', cancel);
+    sc.on(el, 'pointerup', e => cancel('p' + e.pointerId));
+    sc.on(el, 'pointercancel', e => cancel('p' + e.pointerId));
+    sc.on(el, 'lostpointercapture', e => cancel('p' + e.pointerId));
+    sc.on(el, 'keydown', e => {
+      if (e.repeat || (e.key !== ' ' && e.key !== 'Enter')) return;
+      e.preventDefault(); // suppress the synthesized click on keyup
+      start('k');
+    });
+    sc.on(el, 'keyup', e => { if (e.key === ' ' || e.key === 'Enter') cancel('k'); });
+    sc.on(el, 'blur', () => { if (src !== null) cancel(src); });
   });
 }
 
