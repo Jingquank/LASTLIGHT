@@ -884,7 +884,8 @@ const SW = { A: 0.18, phase: 0, psi: 0.7, flickT: 0, flickAmp: 0 }; // bulb swin
 const LI = 36; // bulb intensity baseline
 
 function buildWorld() {
-  const floor = new THREE.Mesh(new THREE.CircleGeometry(11, 26), lam(PAL.floor, { map: floorTex }));
+  // radius far past the fog limit: the floor dissolves into the void with no visible rim
+  const floor = new THREE.Mesh(new THREE.CircleGeometry(30, 26), lam(PAL.floor, { map: floorTex }));
   floor.rotation.x = -Math.PI / 2; floor.receiveShadow = true;
   scene3.add(floor);
 
@@ -913,7 +914,7 @@ function buildWorld() {
   W.light.shadow.camera.far = 9;
   W.light.shadow.bias = -0.004;
   bulbGrp.add(W.light);
-  scene3.add(new THREE.AmbientLight(0x3A352C, 0.65));
+  scene3.add(new THREE.AmbientLight(0x2E2D2B, 0.65)); // near-neutral: keeps deep-shadow dither monochrome
 
   // ---- revolver (~snub-nose, chunky)
   W.gun = new THREE.Group();
@@ -1267,6 +1268,7 @@ float bayer4(vec2 a) { return bayer2(0.5 * a) * 0.25 + bayer2(a); }
 void main() {
   vec3 c = texture2D(tDiffuse, vUv).rgb;
   c = pow(max(c, vec3(0.0)), vec3(1.0 / uGamma));
+  c = max(c - vec3(0.022), vec3(0.0)); // black toe: faintest tail clamps to void, no fringing band
   float b = bayer4(gl_FragCoord.xy) - 0.5;
   c = floor(c * 31.0 + 0.5 + b) / 31.0;          // 5-bit posterize with ordered dither
   float d = distance(vUv, vec2(0.5));
@@ -1342,7 +1344,7 @@ function camUpdate(dt) {
 function resize() {
   const aspect = innerWidth / Math.max(1, innerHeight);
   rtH = 240;
-  rtW = Math.round(Math.min(640, Math.max(160, 240 * aspect)));
+  rtW = Math.round(Math.min(640, Math.max(96, 240 * aspect))); // 96 floor keeps pixels square on tall phones
   renderer.setSize(rtW, rtH, false);
   rt.setSize(rtW, rtH);
   cam.aspect = rtW / rtH;
@@ -1936,7 +1938,7 @@ requestAnimationFrame(t => { last = t; requestAnimationFrame(frame); });
 
 if (DEBUG) {
   window.LL = {
-    state, dispatch, sfx, T,
+    state, dispatch, sfx, T, scene3, W, postMat, cam, renderer,
     give(i, k) { state.players[i].items.push(k); renderAll(); },
     hurt(i, n = 1) { state.players[i].hp = Math.max(0, state.players[i].hp - n); renderAll(); },
   };
