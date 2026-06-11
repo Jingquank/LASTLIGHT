@@ -540,7 +540,6 @@ const T = {
   hammer: 400,      // freeze on the hammer before resolution (GDD §6)
   banner: 1150, bannerBig: 1500,
   elim: 1500,
-  privAuto: 3000,
   hold: DEBUG ? 220 : 1000,
   aimPush: 560,
 };
@@ -1753,7 +1752,7 @@ async function uiPrivate(p) {
     ? p.items.map(k => `<div class="pitem"><span class="iname">${ITEMS[k].name}</span><span class="idesc">${ITEMS[k].desc}</span></div>`).join('')
     : '<div class="pitem-empty">NO ITEMS</div>';
   els.lensline.innerHTML = p.lens ? 'NEXT SHELL: ' + shellSpan(p.lens.shell) : '';
-  await Promise.race([onceTap(els.priv), wait(T.privAuto)]);
+  await onceTap(els.priv); // stays up until the player taps — never advances on its own
   show('table');
 }
 
