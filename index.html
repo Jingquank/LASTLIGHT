@@ -320,6 +320,39 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 #lensline { font-size: clamp(18px, 5vw, 28px); text-align: center; }
 #priv-cont { animation: pulse 1.7s ease-in-out infinite; }
 
+/* ---------- generic modal overlays (settings, quit) ---------- */
+.ovl {
+  position: absolute; inset: 0; display: none;
+  align-items: center; justify-content: center;
+  background: color-mix(in srgb, var(--invert-bg) 88%, transparent);
+  z-index: 45; pointer-events: auto;
+}
+.ovl[data-active] { display: flex; }
+.ovl .panel { gap: 10px; }
+.set-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; min-height: 40px; }
+.set-lbl { font-size: 14px; letter-spacing: 0.07em; color: var(--invert-text); text-transform: uppercase; }
+.set-val { color: var(--text-muted); font-size: 14px; }
+.set-tgl { min-width: 84px; min-height: 40px; padding: 8px 14px; color: var(--text-faint); }
+.set-tgl[data-on] { color: var(--accent); }
+#set-vol {
+  -webkit-appearance: none; appearance: none; width: 100%; height: 16px;
+  background: #0A0A0E; border: 2px solid; border-color: var(--bevel-in); outline-offset: 3px;
+}
+#set-vol::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none; width: 20px; height: 28px;
+  background: var(--accent); border: 2px solid; border-color: var(--accent-bevel); cursor: pointer;
+}
+#set-vol::-moz-range-thumb {
+  width: 16px; height: 24px; border-radius: 0;
+  background: var(--accent); border: 2px solid #00521F; cursor: pointer;
+}
+#settingsbtn { position: absolute; top: max(14px, env(safe-area-inset-top)); right: 14px; font-size: 13px; min-height: 44px; padding: 9px 16px; }
+#exitbtn {
+  position: absolute; top: max(14px, env(safe-area-inset-top)); left: 14px;
+  font-size: 13px; min-height: 44px; padding: 9px 16px; pointer-events: auto;
+}
+#quithold { background: var(--tile); color: var(--invert-text); }
+
 /* ---------- lens overlay ---------- */
 #lensov {
   position: absolute; inset: 0; display: none;
@@ -369,6 +402,7 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
     <div class="display" id="title-name">LAST<br>LIGHT</div>
     <div class="eyebrow" id="tap-begin">TAP TO BEGIN</div>
     <div id="seed-tag"></div>
+    <button class="btn btn-ghost" id="settingsbtn">SETTINGS</button>
   </section>
 
   <section class="screen" id="scr-setup">
@@ -386,6 +420,7 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   </section>
 
   <section class="screen" id="scr-table">
+    <button class="btn btn-ghost" id="exitbtn">&#10006; EXIT</button>
     <div id="topbar">
       <div class="eyebrow" id="roundlbl"></div>
       <div id="shellctr"><span class="live"></span><span class="blank"></span></div>
@@ -431,6 +466,32 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
     <div class="eyebrow">PRIVATE &mdash; YOUR EYES ONLY</div>
     <div class="display" id="lenstxt"></div>
     <div class="eyebrow">TAP TO HIDE</div>
+  </div>
+
+  <div id="settings" class="ovl">
+    <div class="panel">
+      <div class="display" style="font-size:clamp(24px,6vw,40px);">SETTINGS</div>
+      <div class="set-row"><span class="set-lbl">VOLUME</span><span class="set-val" id="set-vol-val"></span></div>
+      <input type="range" id="set-vol" min="0" max="100" step="5" aria-label="Volume">
+      <div class="set-row"><span class="set-lbl">FILM GRAIN</span><button class="btn set-tgl" data-key="grain"></button></div>
+      <div class="set-row"><span class="set-lbl">SCANLINES</span><button class="btn set-tgl" data-key="scan"></button></div>
+      <div class="set-row"><span class="set-lbl">PS1 DITHER</span><button class="btn set-tgl" data-key="dither"></button></div>
+      <div class="set-row"><span class="set-lbl">VERTEX WOBBLE</span><button class="btn set-tgl" data-key="wobble"></button></div>
+      <div class="set-row"><span class="set-lbl">SHAKE &amp; FLASH</span><button class="btn set-tgl" data-key="shake"></button></div>
+      <div class="set-row">
+        <button class="btn btn-ghost" id="set-reset" style="font-size:12px;">RESET DEFAULTS</button>
+        <button class="btn btn-accent" id="set-close" style="flex:1;">CLOSE</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="quitov" class="ovl">
+    <div class="panel" style="align-items:center;text-align:center;">
+      <div class="display" style="font-size:clamp(24px,6vw,40px);">ABANDON MATCH?</div>
+      <div class="eyebrow">THE TABLE FORGETS NO ONE &mdash; PROGRESS WILL BE LOST</div>
+      <button class="holdbtn" id="quithold"><span class="fill"></span><span class="lbl">QUIT MATCH</span><span class="hint">HOLD TO CONFIRM</span></button>
+      <button class="btn btn-ghost" id="staybtn" style="min-width:160px;">STAY</button>
+    </div>
   </div>
 
 </div>
@@ -483,6 +544,15 @@ const T = {
   hold: DEBUG ? 220 : 1000,
   aimPush: 560,
 };
+
+// player settings — persisted in localStorage, applied via applySettings()
+const DEFAULT_SETTINGS = { vol: 0.9, grain: true, scan: true, dither: true, wobble: true, shake: true };
+const SETTINGS = Object.assign({}, DEFAULT_SETTINGS, (() => {
+  try { return JSON.parse(localStorage.getItem('ll_settings') || '{}'); } catch (e) { return {}; }
+})());
+function saveSettings() {
+  try { localStorage.setItem('ll_settings', JSON.stringify(SETTINGS)); } catch (e) {}
+}
 
 /* ============================================================
    §B PRNG — mulberry32, all randomness flows through here
@@ -746,7 +816,7 @@ function audioInit() {
   comp.threshold.value = -18; comp.knee.value = 18; comp.ratio.value = 5;
   comp.attack.value = 0.004; comp.release.value = 0.18;
   const master = ctx.createGain();
-  master.gain.value = 0.9;
+  master.gain.value = 0.9 * SETTINGS.vol;
   master.connect(shaper); shaper.connect(comp); comp.connect(ctx.destination);
   AC.master = master;
   // noise buffers
@@ -1326,6 +1396,8 @@ const postMat = new THREE.ShaderMaterial({
     uFlashColor: { value: new THREE.Vector3(0x00 / 255, 0xE0 / 255, 0x5A / 255) }, // --accent, sRGB
     uGamma: { value: 2.2 }, // linear scene -> display; escape hatch for color-space drift
     uVig: { value: 0.46 },
+    uScan: { value: 1 },   // settings: scanlines on/off
+    uDither: { value: 1 }, // settings: posterize+dither on/off
   },
   vertexShader: `varying vec2 vUv;
 void main() { vUv = uv; gl_Position = vec4(position.xy, 0.0, 1.0); }`,
@@ -1333,6 +1405,7 @@ void main() { vUv = uv; gl_Position = vec4(position.xy, 0.0, 1.0); }`,
 varying vec2 vUv;
 uniform sampler2D tDiffuse;
 uniform float uFlash; uniform vec3 uFlashColor; uniform float uGamma; uniform float uVig;
+uniform float uScan; uniform float uDither;
 float bayer2(vec2 a) { a = floor(a); return fract(a.x / 2.0 + a.y * a.y * 0.75); }
 float bayer4(vec2 a) { return bayer2(0.5 * a) * 0.25 + bayer2(a); }
 void main() {
@@ -1340,10 +1413,12 @@ void main() {
   c = pow(max(c, vec3(0.0)), vec3(1.0 / uGamma));
   c = max(c - vec3(0.022), vec3(0.0)); // black toe: faintest tail clamps to void, no fringing band
   float b = bayer4(gl_FragCoord.xy) - 0.5;
-  c = floor(c * 31.0 + 0.5 + b) / 31.0;          // 5-bit posterize with ordered dither
+  vec3 cq = floor(c * 31.0 + 0.5 + b) / 31.0;     // 5-bit posterize with ordered dither
+  c = mix(c, cq, uDither);
   float d = distance(vUv, vec2(0.5));
   c *= 1.0 - uVig * smoothstep(0.30, 0.78, d);    // CRT vignette
-  c *= (mod(gl_FragCoord.y, 2.0) < 1.0) ? 1.0 : 0.86; // 1px scanlines at the low-res grid
+  float scan = (mod(gl_FragCoord.y, 2.0) < 1.0) ? 1.0 : 0.86; // 1px scanlines at the low-res grid
+  c *= mix(1.0, scan, uScan);
   c = mix(c, uFlashColor, uFlash);
   gl_FragColor = vec4(c, 1.0);
 }`,
@@ -1351,7 +1426,7 @@ void main() {
 postScene.add(new THREE.Mesh(new THREE.PlaneGeometry(2, 2), postMat));
 
 let flashN = 0;
-function flashFrames(n) { if (!REDUCED) flashN = n; }
+function flashFrames(n) { if (!REDUCED && SETTINGS.shake) flashN = n; }
 
 /* ============================================================
    §I CAMERA — orbit | aim | freeze, exponentially blended; shake
@@ -1369,7 +1444,7 @@ function camOrbit() { camCtl.mode = 'orbit'; }
 function camAim(i) { camCtl.mode = 'aim'; camCtl.target = i; return wait(T.aimPush); }
 function camFreeze() { camCtl.mode = 'freeze'; }
 function camShake(amp = 0.14, dur = 0.4) {
-  if (REDUCED) return;
+  if (REDUCED || !SETTINGS.shake) return;
   camCtl.shakeAmp = amp; camCtl.shakeT = dur; camCtl.shakeDur = dur;
 }
 function camUpdate(dt) {
@@ -1411,6 +1486,11 @@ function camUpdate(dt) {
   cam.lookAt(lk);
 }
 
+function updateSnap() {
+  // wobble off: snap grid so fine it is effectively identity (no shader rebuild needed)
+  if (SETTINGS.wobble) UNI_SNAP.value.set(rtW / 2, rtH / 2);
+  else UNI_SNAP.value.set(1e6, 1e6);
+}
 function resize() {
   const aspect = innerWidth / Math.max(1, innerHeight);
   rtH = 240;
@@ -1419,9 +1499,17 @@ function resize() {
   rt.setSize(rtW, rtH);
   cam.aspect = rtW / rtH;
   cam.updateProjectionMatrix();
-  UNI_SNAP.value.set(rtW / 2, rtH / 2);
+  updateSnap();
 }
 addEventListener('resize', resize);
+
+function applySettings() {
+  if (AC.master) AC.master.gain.value = 0.9 * SETTINGS.vol;
+  document.getElementById('grain').style.display = SETTINGS.grain ? '' : 'none';
+  postMat.uniforms.uScan.value = SETTINGS.scan ? 1 : 0;
+  postMat.uniforms.uDither.value = SETTINGS.dither ? 1 : 0;
+  updateSnap();
+}
 
 /* ============================================================
    §K INPUT — pointer events only: one code path for touch and
@@ -1776,6 +1864,58 @@ async function uiGameOver() {
   });
 }
 
+// ---- settings overlay (opened from the title screen)
+function initSettingsUI() {
+  const ov = $('#settings');
+  const volEl = $('#set-vol'), volVal = $('#set-vol-val');
+  const renderSet = () => {
+    volEl.value = Math.round(SETTINGS.vol * 100);
+    volVal.textContent = Math.round(SETTINGS.vol * 100) + '%';
+    document.querySelectorAll('.set-tgl').forEach(btn => {
+      const on = !!SETTINGS[btn.dataset.key];
+      btn.textContent = on ? 'ON' : 'OFF';
+      btn.toggleAttribute('data-on', on);
+    });
+  };
+  const sb = $('#settingsbtn');
+  sb.addEventListener('pointerdown', e => e.stopPropagation()); // don't trigger TAP TO BEGIN
+  sb.addEventListener('click', e => { e.stopPropagation(); sfx.uiTick(); renderSet(); ov.setAttribute('data-active', ''); });
+  $('#set-close').addEventListener('click', () => { sfx.uiTick(); ov.removeAttribute('data-active'); });
+  $('#set-reset').addEventListener('click', () => {
+    Object.assign(SETTINGS, DEFAULT_SETTINGS);
+    saveSettings(); applySettings(); renderSet(); sfx.uiTick();
+  });
+  volEl.addEventListener('input', () => {
+    SETTINGS.vol = volEl.value / 100;
+    saveSettings(); applySettings();
+    volVal.textContent = volEl.value + '%';
+  });
+  volEl.addEventListener('change', () => sfx.uiTick()); // audible at the new volume
+  document.querySelectorAll('.set-tgl').forEach(btn => btn.addEventListener('click', () => {
+    SETTINGS[btn.dataset.key] = !SETTINGS[btn.dataset.key];
+    saveSettings(); applySettings(); renderSet(); sfx.uiTick();
+  }));
+}
+
+// ---- in-game exit (table view) -> hold-to-confirm -> back to title
+function initExitUI() {
+  const ov = $('#quitov');
+  $('#exitbtn').addEventListener('click', () => {
+    sfx.uiTick();
+    // fresh clones so stale listeners from a previous open die with the nodes
+    const hold0 = $('#quithold'), stay0 = $('#staybtn');
+    const hold = hold0.cloneNode(true), stay = stay0.cloneNode(true);
+    hold0.replaceWith(hold); stay0.replaceWith(stay);
+    ov.setAttribute('data-active', '');
+    const stayP = new Promise(res => stay.addEventListener('click', () => res(false), { once: true }));
+    Promise.race([holdPromise(hold, T.hold).then(() => true), stayP]).then(quit => {
+      ov.removeAttribute('data-active');
+      if (quit) location.reload(); // clean abort: settings persist, match state does not
+      else sfx.uiTick();
+    });
+  });
+}
+
 /* ============================================================
    §L ORCH — async phase machine. State is final before any
    animation plays; these handlers replay reducer events.
@@ -2029,6 +2169,9 @@ function fontGate() {
 
 buildWorld();
 resize();
+applySettings();
+initSettingsUI();
+initExitUI();
 requestAnimationFrame(t => { last = t; requestAnimationFrame(frame); });
 
 if (DEBUG) {
