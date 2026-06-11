@@ -115,27 +115,72 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   text-align: center; color: var(--text-faint); font-size: 12px; letter-spacing: 0.07em;
 }
 
-/* ---------- setup ---------- */
-#scr-setup { background: color-mix(in srgb, var(--invert-bg) 76%, transparent); }
+/* ---------- shared system-screen field (setup, handoff) ---------- */
+.sysbg { background: var(--sys-bg); overflow: hidden; }
+.sysbg::before {
+  content: ''; position: absolute; inset: -80px;
+  background: repeating-linear-gradient(45deg, rgba(40, 40, 60, 0.20) 0 12px, transparent 12px 24px);
+  animation: lldrift 22s linear infinite;
+}
+.sysbg::after { /* CRT refresh band — solid translucent, no gradient */
+  content: ''; position: absolute; left: 0; right: 0; top: -25%; height: 16%;
+  background: rgba(240, 237, 230, 0.04);
+  animation: llrefresh 7s linear infinite;
+  pointer-events: none;
+}
+@keyframes lldrift { to { transform: translate(33.94px, 33.94px); } }
+@keyframes llrefresh { to { top: 125%; } }
+
+/* ---------- setup: insert player memory cards ---------- */
+#setup-inner {
+  position: relative; display: flex; flex-direction: column; align-items: center;
+  gap: 16px; padding: 24px 14px; width: 100%; max-height: 100%; overflow-y: auto;
+}
+#setup-title { font-size: clamp(30px, 8vw, 60px); text-align: center; }
+#setup-sub { color: var(--text-faint); }
+#slotgrid { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; max-width: 660px; }
+.slot {
+  position: relative; width: 128px; height: 170px;
+  display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
+  gap: 8px; padding: 10px;
+}
+.slot.filled { background: var(--tile); border: 2px solid; border-color: var(--bevel-up); }
+.slot.filled::before { /* card ridges */
+  content: ''; position: absolute; top: 8px; left: 10px; right: 10px; height: 12px;
+  background: repeating-linear-gradient(90deg, #2E2E3A 0 6px, transparent 6px 10px);
+}
+.slot .snum { position: absolute; top: 30px; }
+.slot.filled:focus-within .snum::before {
+  content: '◆ '; color: var(--accent);
+  animation: llblink 0.7s steps(1) infinite;
+}
+.slot.filled input {
+  width: 100%; min-height: 44px; background: #0A0A0E;
+  border: 2px solid; border-color: var(--bevel-in);
+  color: var(--invert-text); text-align: center; font-size: 16px;
+  text-transform: uppercase; font-family: var(--font-body); letter-spacing: 0.05em;
+  user-select: text; -webkit-user-select: text;
+}
+.slot.filled input:focus { outline: 2px solid var(--accent); outline-offset: 0; }
+.slot.empty {
+  background: transparent; border: 2px dashed #32323E;
+  color: var(--text-faint); cursor: pointer; justify-content: center; gap: 6px;
+}
+.slot.empty .plus { font-size: 30px; line-height: 1; }
+.slot.empty:hover { border-color: var(--text-faint); color: var(--text-muted); }
+.slot .eject {
+  position: absolute; top: 4px; right: 4px; min-width: 36px; min-height: 36px;
+  background: var(--tile); border: 2px solid; border-color: var(--bevel-up);
+  color: var(--text-faint); font-size: 13px;
+}
+.slot .eject:hover { color: var(--invert-text); }
+#setup-legend { text-align: center; max-width: 90vw; color: var(--text-faint); }
 .panel {
   background: var(--tile); border: 2px solid; border-color: var(--bevel-up);
   border-radius: var(--radius); padding: 22px;
   display: flex; flex-direction: column; gap: 14px;
   width: min(430px, 92vw); max-height: 86vh; overflow-y: auto;
 }
-.cnt-row { display: flex; gap: 10px; }
-.cnt-row .btn { flex: 1; font-size: 20px; font-weight: 700; }
-.cnt-row .btn[data-sel] { background: var(--accent-tile); color: var(--on-accent); border-color: var(--accent-bevel); }
-.name-row { display: flex; align-items: center; gap: 10px; }
-.name-row .eyebrow { width: 22px; text-align: right; }
-.name-row input {
-  flex: 1; min-height: 48px; background: #0A0A0E;
-  border: 2px solid; border-color: var(--bevel-in); border-radius: var(--radius);
-  color: var(--invert-text); padding: 0 12px; font-size: 16px;
-  letter-spacing: 0.05em; text-transform: uppercase; font-family: var(--font-body);
-  user-select: text; -webkit-user-select: text;
-}
-.name-row input:focus { outline: 2px solid var(--accent); outline-offset: 0; }
 
 /* ---------- shared table HUD ---------- */
 #scr-table { pointer-events: none; }
@@ -277,13 +322,7 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .t-faint { color: var(--text-faint); }
 
 /* ---------- handoff: PS1 memory-card system screen ---------- */
-#scr-handoff { background: var(--sys-bg); z-index: 20; overflow: hidden; }
-#scr-handoff::before {
-  content: ''; position: absolute; inset: -80px;
-  background: repeating-linear-gradient(45deg, rgba(40, 40, 60, 0.20) 0 12px, transparent 12px 24px);
-  animation: lldrift 22s linear infinite;
-}
-@keyframes lldrift { to { transform: translate(33.94px, 33.94px); } }
+#scr-handoff { z-index: 20; }
 #handoff-inner { position: relative; display: flex; flex-direction: column; align-items: center; gap: 22px; padding: 24px; }
 #passto { color: var(--text-muted); font-size: clamp(13px, 2.6vw, 17px); letter-spacing: 0.18em; text-transform: uppercase; }
 #memcard {
@@ -388,8 +427,9 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   .plate, #banner .btxt { transition: none; }
   .holdbtn[data-nudge] { animation: none; }
   .holdbtn { transition: none; }
-  #scr-handoff::before, #memcard { animation: none; }
+  .sysbg::before, .sysbg::after, #memcard { animation: none; }
   .icard.open .iname::before, .plate[data-targetable] .pname::before, .plate[data-aimed] .pname::before { animation: none; }
+  .slot.filled:focus-within .snum::before { animation: none; }
 }
 </style>
 </head>
@@ -405,17 +445,14 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
     <button class="btn btn-ghost" id="settingsbtn">SETTINGS</button>
   </section>
 
-  <section class="screen" id="scr-setup">
-    <div class="panel">
-      <div class="eyebrow">PLAYERS AT THE TABLE</div>
-      <div class="cnt-row">
-        <button class="btn" data-n="2">2</button>
-        <button class="btn" data-n="3" data-sel>3</button>
-        <button class="btn" data-n="4">4</button>
-      </div>
-      <div class="eyebrow">NAMES</div>
-      <div id="names" style="display:flex;flex-direction:column;gap:8px;"></div>
-      <button class="btn btn-accent" id="startbtn" style="min-height:54px;">SIT DOWN</button>
+  <section class="screen sysbg" id="scr-setup">
+    <div id="setup-inner">
+      <div class="eyebrow">&mdash; NEW SESSION &mdash;</div>
+      <div class="display" id="setup-title">INSERT PLAYERS</div>
+      <div class="eyebrow" id="setup-sub">4 SLOTS DETECTED &middot; MORTALITY ENABLED</div>
+      <div id="slotgrid"></div>
+      <button class="btn btn-accent" id="startbtn" style="min-height:54px;min-width:240px;">SIT DOWN</button>
+      <div class="eyebrow" id="setup-legend">2&ndash;4 PLAYERS &middot; TAP + TO INSERT A CARD &middot; &#10006; EJECTS</div>
     </div>
   </section>
 
@@ -435,7 +472,7 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
     </div>
   </section>
 
-  <section class="screen" id="scr-handoff">
+  <section class="screen sysbg" id="scr-handoff">
     <div id="handoff-inner">
       <div id="passto">&mdash; DEVICE HANDOFF &mdash;</div>
       <div id="memcard"></div>
@@ -1590,7 +1627,7 @@ const $ = s => document.querySelector(s);
 const els = {
   ui: $('#ui'), title: $('#scr-title'), setup: $('#scr-setup'), table: $('#scr-table'),
   handoff: $('#scr-handoff'), priv: $('#scr-private'), over: $('#scr-over'),
-  seedTag: $('#seed-tag'), names: $('#names'), startbtn: $('#startbtn'),
+  seedTag: $('#seed-tag'), slotgrid: $('#slotgrid'), startbtn: $('#startbtn'),
   roundlbl: $('#roundlbl'), live: $('#shellctr .live'), blank: $('#shellctr .blank'),
   hpchip: $('#hpchip'), plates: $('#plates'), instr: $('#instr'),
   turnlbl: $('#turnlbl'), handrow: $('#handrow'), actionrow: $('#actionrow'),
@@ -1699,40 +1736,64 @@ function uiSetup() {
   return new Promise(res => {
     show('setup');
     const sc = makeScope();
-    const selBtn = document.querySelector('.cnt-row .btn[data-sel]');
-    let count = selBtn ? +selBtn.dataset.n : 3; // restart keeps the last selection
-    const cntBtns = [...document.querySelectorAll('.cnt-row .btn')];
-    const buildNames = () => {
-      const prev = [...els.names.querySelectorAll('input')].map(i => i.value);
-      els.names.innerHTML = '';
-      for (let i = 0; i < count; i++) {
-        const row = document.createElement('div');
-        row.className = 'name-row';
-        const lbl = document.createElement('span');
-        lbl.className = 'eyebrow';
-        lbl.textContent = 'P' + (i + 1);
-        const inp = document.createElement('input');
-        inp.maxLength = 8;
-        inp.placeholder = 'P' + (i + 1);
-        inp.value = prev[i] || '';
-        inp.autocomplete = 'off';
-        row.appendChild(lbl); row.appendChild(inp);
-        els.names.appendChild(row);
+    let saved = {};
+    try { saved = JSON.parse(localStorage.getItem('ll_table') || '{}'); } catch (e) {}
+    let count = Math.min(4, Math.max(2, saved.count || 3));
+    const names = ['', '', '', ''];
+    (Array.isArray(saved.names) ? saved.names : []).slice(0, 4).forEach((n, i) => { names[i] = String(n).slice(0, 8); });
+    const harvest = () => els.slotgrid.querySelectorAll('input').forEach(inp => { names[+inp.dataset.i] = inp.value; });
+    const build = () => {
+      els.slotgrid.innerHTML = '';
+      for (let i = 0; i < 4; i++) {
+        if (i < count) {
+          // an inserted memory card: name goes on the label
+          const d = document.createElement('div');
+          d.className = 'slot filled';
+          const num = document.createElement('span');
+          num.className = 'snum eyebrow';
+          num.textContent = 'CARD ' + (i + 1);
+          const inp = document.createElement('input');
+          inp.maxLength = 8;
+          inp.placeholder = 'P' + (i + 1);
+          inp.autocomplete = 'off';
+          inp.dataset.i = i;
+          inp.value = names[i];
+          inp.setAttribute('aria-label', 'Player ' + (i + 1) + ' name');
+          d.appendChild(num);
+          d.appendChild(inp);
+          if (count > 2) {
+            const ej = document.createElement('button');
+            ej.className = 'eject';
+            ej.textContent = '✕';
+            ej.setAttribute('aria-label', 'Eject player ' + (i + 1));
+            sc.on(ej, 'click', () => {
+              harvest();
+              names.splice(i, 1);
+              names.push('');
+              count--;
+              sfx.eject();
+              build();
+            });
+            d.appendChild(ej);
+          }
+          els.slotgrid.appendChild(d);
+        } else {
+          const d = document.createElement('button');
+          d.className = 'slot empty';
+          d.innerHTML = '<span class="plus">+</span><span class="eyebrow">INSERT CARD</span>';
+          sc.on(d, 'click', () => { harvest(); count++; sfx.click(0, 0.3); build(); });
+          els.slotgrid.appendChild(d);
+        }
       }
     };
-    cntBtns.forEach(b => sc.on(b, 'click', () => {
-      count = +b.dataset.n;
-      cntBtns.forEach(x => x.toggleAttribute('data-sel', x === b));
-      sfx.uiTick();
-      buildNames();
-    }));
-    buildNames();
+    build();
     sc.on(els.startbtn, 'click', () => {
-      const names = [...els.names.querySelectorAll('input')].map((inp, i) =>
-        (inp.value.trim().toUpperCase().slice(0, 8) || 'P' + (i + 1)));
+      harvest();
+      const out = names.slice(0, count).map((n, i) => (n.trim().toUpperCase().slice(0, 8) || 'P' + (i + 1)));
+      try { localStorage.setItem('ll_table', JSON.stringify({ count, names: names.slice(0, count) })); } catch (e) {}
       sc.kill();
       sfx.uiTick();
-      res({ names });
+      res({ names: out });
     });
   });
 }
