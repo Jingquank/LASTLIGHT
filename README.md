@@ -2,7 +2,7 @@
 
 A turn-based Russian-roulette duel for 2–4 players sharing one device. A revolver, a table, a single swinging bulb. PS1-era survival horror, in one self-contained HTML file.
 
-Three.js from CDN; all geometry procedural, all audio synthesized, all textures canvas-generated. The only assets are fonts (Google Fonts **Outfit** + local **Ancho UltraBold**, which degrades gracefully if missing).
+Three.js from CDN; all geometry procedural, all audio synthesized, all textures canvas-generated. The only assets are fonts (Google Fonts **DotGothic16** for UI/body + local **Ancho UltraBold** for display moments, which degrades gracefully if missing).
 
 ## Run
 
@@ -13,7 +13,7 @@ python3 -m http.server 8123
 # open http://localhost:8123/
 ```
 
-Internet is required for the Three.js CDN and Outfit.
+Internet is required for the Three.js CDN and DotGothic16.
 
 ## How to play
 

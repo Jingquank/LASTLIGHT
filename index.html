@@ -30,7 +30,7 @@ window.addEventListener('load', function () {
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
 <style>
 @font-face {
   font-family: 'Ancho';
@@ -51,8 +51,8 @@ window.addEventListener('load', function () {
   --on-accent: #002B12;
   --paper: #F3F0EB;
   --handoff-cta: #1A1A1A;
-  --font-display: 'Ancho', 'Outfit', sans-serif;
-  --font-body: 'Outfit', sans-serif;
+  --font-display: 'Ancho', 'DotGothic16', sans-serif;
+  --font-body: 'DotGothic16', sans-serif;
   --radius: 4px;
 }
 * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -60,6 +60,7 @@ html, body {
   height: 100%; overflow: hidden; overscroll-behavior: none;
   background: var(--invert-bg); color: var(--invert-text);
   font-family: var(--font-body);
+  font-synthesis: none; /* DotGothic16 is single-weight: no smeared fake bold */
   user-select: none; -webkit-user-select: none; -webkit-touch-callout: none;
 }
 button { font: inherit; color: inherit; background: none; border: none; cursor: pointer; }
@@ -81,13 +82,13 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 }
 .eyebrow {
   text-transform: uppercase; letter-spacing: 0.07em;
-  font-weight: 600; font-size: 12px; color: var(--text-muted);
+  font-weight: 600; font-size: 13px; color: var(--text-muted);
 }
 .btn {
   min-height: 48px; min-width: 48px; padding: 12px 22px;
   border: 1px solid var(--hairline); border-radius: var(--radius);
   background: var(--invert-bg-elevated); color: var(--invert-text);
-  font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; font-size: 14px;
+  font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; font-size: 15px;
 }
 .btn:disabled { opacity: 0.35; cursor: default; }
 .btn-accent { background: var(--accent); color: var(--on-accent); border-color: transparent; }
@@ -102,7 +103,7 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 @keyframes pulse { 50% { opacity: 0.4; } }
 #seed-tag {
   position: absolute; bottom: max(12px, env(safe-area-inset-bottom)); left: 0; right: 0;
-  text-align: center; color: var(--text-faint); font-size: 11px; letter-spacing: 0.07em;
+  text-align: center; color: var(--text-faint); font-size: 12px; letter-spacing: 0.07em;
 }
 
 /* ---------- setup ---------- */
@@ -133,11 +134,11 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   position: absolute; top: max(10px, env(safe-area-inset-top)); left: 0; right: 0;
   display: flex; flex-direction: column; align-items: center; gap: 6px; pointer-events: none;
 }
-#shellctr { display: flex; gap: 16px; font-weight: 700; font-size: 14px; letter-spacing: 0.08em; }
+#shellctr { display: flex; gap: 16px; font-weight: 700; font-size: 16px; letter-spacing: 0.08em; }
 #shellctr .live { color: var(--accent); }
 #shellctr .blank { color: var(--text-muted); }
 #hpchip {
-  display: none; font-size: 11px; font-weight: 700; letter-spacing: 0.08em;
+  display: none; font-size: 12px; font-weight: 700; letter-spacing: 0.08em;
   color: var(--accent); border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
   padding: 4px 9px; border-radius: var(--radius);
 }
@@ -150,12 +151,12 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   padding: 7px 10px; display: flex; flex-direction: column; gap: 4px;
   align-items: center; min-width: 76px; transition: opacity 0.5s, filter 0.5s;
 }
-.plate .pname { font-size: 12px; font-weight: 700; letter-spacing: 0.07em; white-space: nowrap; }
+.plate .pname { font-size: 13px; font-weight: 700; letter-spacing: 0.07em; white-space: nowrap; }
 .plate .prow { display: flex; gap: 4px; align-items: center; min-height: 8px; }
 .hpdot { width: 7px; height: 7px; border-radius: 50%; background: var(--invert-text); }
 .hpdot.off { background: transparent; border: 1px solid var(--hairline); }
 .itdot { width: 5px; height: 5px; border-radius: 1px; background: var(--text-faint); }
-.cufftag { font-size: 9px; font-weight: 700; color: var(--accent); letter-spacing: 0.08em; display: none; }
+.cufftag { font-size: 10px; font-weight: 700; color: var(--accent); letter-spacing: 0.08em; display: none; }
 .plate[data-cuffed] .cufftag { display: block; }
 .plate[data-dead] { opacity: 0.3; filter: grayscale(1); }
 .plate[data-turn] { border-color: rgba(240, 237, 230, 0.4); }
@@ -183,13 +184,13 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   display: flex; flex-direction: column; gap: 4px; align-items: flex-start;
   text-align: left; text-transform: none; letter-spacing: 0;
 }
-.icard .iname { font-weight: 700; font-size: 13px; letter-spacing: 0.06em; text-transform: uppercase; }
-.icard .idesc { display: none; font-size: 11px; color: var(--text-muted); max-width: 170px; line-height: 1.35; }
-.icard .iwhy { display: none; font-size: 10px; color: var(--text-faint); letter-spacing: 0.05em; text-transform: uppercase; }
+.icard .iname { font-weight: 700; font-size: 14px; letter-spacing: 0.06em; text-transform: uppercase; }
+.icard .idesc { display: none; font-size: 12px; color: var(--text-muted); max-width: 170px; line-height: 1.35; }
+.icard .iwhy { display: none; font-size: 11px; color: var(--text-faint); letter-spacing: 0.05em; text-transform: uppercase; }
 .icard .iuse {
   display: none; margin-top: 4px; background: var(--accent); color: var(--on-accent);
   border-radius: var(--radius); padding: 9px 16px; font-weight: 700;
-  font-size: 12px; letter-spacing: 0.08em; min-height: 36px; text-transform: uppercase;
+  font-size: 13px; letter-spacing: 0.08em; min-height: 36px; text-transform: uppercase;
 }
 .icard.open { outline: 2px solid var(--accent); outline-offset: 1px; }
 .icard.open .idesc { display: block; }
@@ -217,7 +218,7 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .holdbtn .lbl { position: relative; }
 .holdbtn .hint {
   position: relative; font-family: var(--font-body); font-weight: 600;
-  font-size: 10px; letter-spacing: 0.1em; opacity: 0.55;
+  font-size: 11px; letter-spacing: 0.1em; opacity: 0.55;
   transition: opacity 0.15s;
 }
 .holdbtn[data-nudge] { animation: llnudge 0.3s ease; }
@@ -267,9 +268,9 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   border: 1px solid var(--hairline); border-radius: var(--radius);
   background: var(--invert-bg-elevated);
 }
-.pitem .iname { font-weight: 700; font-size: 13px; letter-spacing: 0.06em; }
-.pitem .idesc { font-size: 11px; color: var(--text-muted); line-height: 1.35; }
-.pitem-empty { color: var(--text-faint); font-size: 12px; text-align: center; padding: 8px; letter-spacing: 0.06em; }
+.pitem .iname { font-weight: 700; font-size: 14px; letter-spacing: 0.06em; }
+.pitem .idesc { font-size: 12px; color: var(--text-muted); line-height: 1.35; }
+.pitem-empty { color: var(--text-faint); font-size: 13px; text-align: center; padding: 8px; letter-spacing: 0.06em; }
 #lensline { font-size: clamp(18px, 5vw, 28px); text-align: center; }
 #priv-cont { animation: pulse 1.7s ease-in-out infinite; }
 
