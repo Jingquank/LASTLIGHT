@@ -57,12 +57,10 @@ window.addEventListener('load', function () {
   --sys-bg: #0B0B10;
   --bevel-hi: #5A5A66;
   --bevel-lo: #16161C;
-  --tile-hi: #23232E;
-  --tile-lo: #15151C;
   --bevel-up: var(--bevel-hi) var(--bevel-lo) var(--bevel-lo) var(--bevel-hi);
   --bevel-in: var(--bevel-lo) var(--bevel-hi) var(--bevel-hi) var(--bevel-lo);
-  --tile: linear-gradient(135deg, var(--tile-hi), var(--tile-lo));
-  --accent-tile: linear-gradient(135deg, #1FD86B, #008A38);
+  --tile: #1D1D26; /* solid fills only — depth comes from the bevels */
+  --accent-tile: var(--accent);
   --accent-bevel: #54F58F #00521F #00521F #54F58F;
 }
 * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
