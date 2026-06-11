@@ -149,7 +149,8 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   content: ''; position: absolute; top: 8px; left: 10px; right: 10px; height: 12px;
   background: repeating-linear-gradient(90deg, #2E2E3A 0 6px, transparent 6px 10px);
 }
-.slot .snum { position: absolute; top: 30px; }
+.slot.filled.ejectable::before { right: 48px; } /* clear of the eject button */
+.slot .snum { position: absolute; top: 48px; } /* below the ridge/eject zone */
 .slot.filled:focus-within .snum::before {
   content: '◆ '; color: var(--accent);
   animation: llblink 0.7s steps(1) infinite;
@@ -421,6 +422,11 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   user-select: text; -webkit-user-select: text;
 }
 #err.simpass { background: #06281433; color: var(--accent); }
+
+@media (max-width: 560px) {
+  /* clear the EXIT corner button: drop the counter cluster below it */
+  #topbar { top: calc(max(14px, env(safe-area-inset-top)) + 52px); }
+}
 
 @media (prefers-reduced-motion: reduce) {
   #tap-begin, #priv-cont { animation: none; }
@@ -1628,6 +1634,7 @@ const els = {
   ui: $('#ui'), title: $('#scr-title'), setup: $('#scr-setup'), table: $('#scr-table'),
   handoff: $('#scr-handoff'), priv: $('#scr-private'), over: $('#scr-over'),
   seedTag: $('#seed-tag'), slotgrid: $('#slotgrid'), startbtn: $('#startbtn'),
+  topbar: $('#topbar'), bottombar: $('#bottombar'),
   roundlbl: $('#roundlbl'), live: $('#shellctr .live'), blank: $('#shellctr .blank'),
   hpchip: $('#hpchip'), plates: $('#plates'), instr: $('#instr'),
   turnlbl: $('#turnlbl'), handrow: $('#handrow'), actionrow: $('#actionrow'),
@@ -1699,13 +1706,21 @@ function renderPlates() {
 const V3 = new THREE.Vector3();
 function projectPlates() {
   if (!plateEls.length || !W.plateAnchors.length) return;
+  // keep plates out of the HUD bands (rects are zero-height when the table screen is hidden)
+  const tbRect = els.topbar.getBoundingClientRect();
+  const bbRect = els.bottombar.getBoundingClientRect();
+  const minTop = tbRect.height ? tbRect.bottom + 6 : 70;
+  const maxBottom = bbRect.height ? bbRect.top - 8 : innerHeight - 8;
   plateEls.forEach((el, i) => {
     V3.copy(W.plateAnchors[i]).project(cam);
     if (V3.z > 1 || V3.z < -1) { el.style.display = 'none'; return; }
     el.style.display = '';
     const hw = el.offsetWidth / 2 + 6;
+    const h = el.offsetHeight;
     const x = Math.min(innerWidth - hw, Math.max(hw, (V3.x * 0.5 + 0.5) * innerWidth));
-    const y = Math.min(innerHeight - 8, Math.max(70, (-V3.y * 0.5 + 0.5) * innerHeight));
+    let y = (-V3.y * 0.5 + 0.5) * innerHeight;
+    y = Math.max(y, minTop + h); // y is the plate's bottom edge
+    y = Math.min(y, Math.max(maxBottom, minTop + h));
     el.style.transform = `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px) translate(-50%,-100%)`;
   });
 }
@@ -1762,6 +1777,7 @@ function uiSetup() {
           d.appendChild(num);
           d.appendChild(inp);
           if (count > 2) {
+            d.classList.add('ejectable');
             const ej = document.createElement('button');
             ej.className = 'eject';
             ej.textContent = '✕';
