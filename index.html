@@ -201,8 +201,11 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   color: var(--accent); border: 2px solid; border-color: var(--bevel-up);
   background: var(--tile);
   padding: 4px 9px; border-radius: var(--radius);
+  align-items: center; gap: 7px;
 }
-#hpchip[data-on] { display: block; }
+#hpchip[data-on] { display: flex; }
+.bico { display: inline-flex; vertical-align: -0.08em; margin-right: 0.4em; }
+.bico .iicon, #instr .iicon { display: inline-block; }
 #plates { position: absolute; inset: 0; pointer-events: none; }
 .plate {
   position: absolute; left: 0; top: 0; transform: translate(-50%, -100%);
@@ -1685,6 +1688,7 @@ function iconSvg(key, size = 20) {
   const cells = arr => arr.map(([x, y]) => `<rect x="${x}" y="${y}" width="1" height="1"/>`).join('');
   return `<svg class="iicon" viewBox="0 0 12 12" width="${size}" height="${size}" aria-hidden="true"><g fill="currentColor">${cells(ic.c)}</g>${ic.a.length ? `<g fill="var(--accent)">${cells(ic.a)}</g>` : ''}</svg>`;
 }
+els.hpchip.innerHTML = iconSvg('hollow', 14) + '<span>HOLLOW POINT ARMED</span>';
 
 function show(name) {
   document.querySelectorAll('#ui .screen').forEach(s => s.removeAttribute('data-active'));
@@ -1921,7 +1925,7 @@ function uiPickTarget(valid, { label = 'CHOOSE A TARGET', cancellable = true } =
   return new Promise(res => {
     const sc = makeScope();
     clearBottom();
-    els.instr.textContent = label;
+    els.instr.innerHTML = label; // trusted markup only: our own copy + bico() icons, never player names
     const done = v => {
       sc.kill();
       plateEls.forEach(el => { el.removeAttribute('data-targetable'); el.removeAttribute('data-aimed'); });
@@ -2039,20 +2043,21 @@ function initExitUI() {
    TURN_ITEMS <-> TURN_TARGET -> FIRING -> RESOLUTION -> ...
    ============================================================ */
 const pname = i => esc(state.players[i].name);
+const bico = (k, s = 34) => `<span class="bico">${iconSvg(k, s)}</span>`;
 const EVH = {
-  async LENS_USED(e) { sfx.click(0, 0.2); await showBanner(pname(e.player) + ' RAISES THE LENS', { dur: 850 }); },
+  async LENS_USED(e) { sfx.click(0, 0.2); await showBanner(bico('lens') + pname(e.player) + ' RAISES THE LENS', { dur: 850 }); },
   async LENS_RESULT(e) { await uiLensReveal(e.shell); },
   async FLASK_EJECT(e) {
     await ejectShellAnim(e.type);
     renderAll();
-    await showBanner('EJECTED: ' + shellSpan(e.type));
+    await showBanner(bico('flask') + 'EJECTED: ' + shellSpan(e.type));
   },
-  async CUFFED(e) { sfx.cuff(); renderAll(); await showBanner(pname(e.player) + ' CUFFS ' + pname(e.target)); },
-  async HOLLOW_ARMED() { sfx.click(0, 0.3); renderAll(); await showBanner('<span class="t-live">HOLLOW POINT</span> ARMED'); },
-  async HEALED(e) { sfx.heal(); setFlames(e.player, e.hp, true); renderAll(); await showBanner(pname(e.player) + ' +1 HP', { dur: 850 }); },
-  async MIRROR_USED() { sfx.shimmer(); await cylJiggle(); renderAll(); await showBanner('THE MIRROR TURNS', { dur: 950 }); },
-  async STOLEN(e) { sfx.click(0, 0.25); renderAll(); await showBanner(pname(e.player) + ' ROBS ' + pname(e.target)); },
-  async HOLLOW_WASTED() { sfx.wasted(); await showBanner('HOLLOW POINT <span class="t-faint">WASTED</span>'); },
+  async CUFFED(e) { sfx.cuff(); renderAll(); await showBanner(bico('cuffs') + pname(e.player) + ' CUFFS ' + pname(e.target)); },
+  async HOLLOW_ARMED() { sfx.click(0, 0.3); renderAll(); await showBanner(bico('hollow') + '<span class="t-live">HOLLOW POINT</span> ARMED'); },
+  async HEALED(e) { sfx.heal(); setFlames(e.player, e.hp, true); renderAll(); await showBanner(bico('cig') + pname(e.player) + ' +1 HP', { dur: 850 }); },
+  async MIRROR_USED() { sfx.shimmer(); await cylJiggle(); renderAll(); await showBanner(bico('mirror') + 'THE MIRROR TURNS', { dur: 950 }); },
+  async STOLEN(e) { sfx.click(0, 0.25); renderAll(); await showBanner(bico('ledger') + pname(e.player) + ' ROBS ' + pname(e.target)); },
+  async HOLLOW_WASTED() { sfx.wasted(); await showBanner(bico('hollow') + 'HOLLOW POINT <span class="t-faint">WASTED</span>'); },
   async ELIMINATED(e) {
     sfx.elim();
     await eliminateSeat(e.player);
@@ -2061,7 +2066,7 @@ const EVH = {
   },
   async ROUND_END() { await showBanner('CYLINDER EMPTY', { dur: 900 }); },
   async EXTRA_TURN() { await showBanner('<span class="t-blank">BLANK</span> — GO AGAIN', { dur: 950 }); },
-  async SKIPPED(e) { sfx.cuff(); renderAll(); await showBanner(pname(e.player) + ' CUFFED — SKIPPED'); },
+  async SKIPPED(e) { sfx.cuff(); renderAll(); await showBanner(bico('cuffs') + pname(e.player) + ' CUFFED — SKIPPED'); },
 };
 async function playEvents(ev) {
   for (const e of ev) { const h = EVH[e.t]; if (h) await h(e); }
@@ -2132,7 +2137,7 @@ async function playTurn() {
       let target;
       const tgs = itemTargets(act.item);
       if (tgs) {
-        target = await uiPickTarget(tgs, { label: act.item === 'cuffs' ? 'CUFF WHO?' : 'ROB WHO?' });
+        target = await uiPickTarget(tgs, { label: act.item === 'cuffs' ? bico('cuffs', 26) + 'CUFF WHO?' : bico('ledger', 26) + 'ROB WHO?' });
         if (target === null) continue;
       }
       uiLock();
