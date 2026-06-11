@@ -22,7 +22,7 @@ Internet is required for the Three.js CDN and DotGothic16.
 3. On your turn: optionally use items, then aim at anyone — including yourself — and hold to fire.
    - Blank + self: **free extra turn.**
    - Live: target loses 1 HP (2 with Hollow Point). 0 HP = out.
-4. Pass the device only on the green handoff screen — it hides all private info.
+4. Pass the device only on the DEVICE HANDOFF system screen — it hides all private info.
 5. Last player breathing wins.
 
 **Items** (refill to 3 per round): Lens · Flask · Handcuffs · Hollow Point · Cigarette · Mirror · Ledger.

@@ -50,10 +50,20 @@ window.addEventListener('load', function () {
   --accent-dim: #00B848;
   --on-accent: #002B12;
   --paper: #F3F0EB;
-  --handoff-cta: #1A1A1A;
   --font-display: 'Ancho', 'DotGothic16', sans-serif;
   --font-body: 'DotGothic16', sans-serif;
-  --radius: 4px;
+  --radius: 0px; /* PS1 system chrome: hard corners everywhere */
+  /* PS1 memory-card chrome */
+  --sys-bg: #0B0B10;
+  --bevel-hi: #5A5A66;
+  --bevel-lo: #16161C;
+  --tile-hi: #23232E;
+  --tile-lo: #15151C;
+  --bevel-up: var(--bevel-hi) var(--bevel-lo) var(--bevel-lo) var(--bevel-hi);
+  --bevel-in: var(--bevel-lo) var(--bevel-hi) var(--bevel-hi) var(--bevel-lo);
+  --tile: linear-gradient(135deg, var(--tile-hi), var(--tile-lo));
+  --accent-tile: linear-gradient(135deg, #1FD86B, #008A38);
+  --accent-bevel: #54F58F #00521F #00521F #54F58F;
 }
 * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 html, body {
@@ -86,13 +96,14 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 }
 .btn {
   min-height: 48px; min-width: 48px; padding: 12px 22px;
-  border: 1px solid var(--hairline); border-radius: var(--radius);
-  background: var(--invert-bg-elevated); color: var(--invert-text);
+  border: 2px solid; border-color: var(--bevel-up); border-radius: var(--radius);
+  background: var(--tile); color: var(--invert-text);
   font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; font-size: 15px;
 }
+.btn:active:not(:disabled) { border-color: var(--bevel-in); transform: translateY(1px); }
 .btn:disabled { opacity: 0.35; cursor: default; }
-.btn-accent { background: var(--accent); color: var(--on-accent); border-color: transparent; }
-.btn-ghost { background: transparent; }
+.btn-accent { background: var(--accent-tile); color: var(--on-accent); border-color: var(--accent-bevel); }
+.btn-ghost { background: transparent; border-color: #2A2A33 #101014 #101014 #2A2A33; }
 .btn:focus-visible, .icard:focus-visible, .plate:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
 /* ---------- title ---------- */
@@ -109,19 +120,19 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 /* ---------- setup ---------- */
 #scr-setup { background: color-mix(in srgb, var(--invert-bg) 76%, transparent); }
 .panel {
-  background: var(--invert-bg-elevated); border: 1px solid var(--hairline);
+  background: var(--tile); border: 2px solid; border-color: var(--bevel-up);
   border-radius: var(--radius); padding: 22px;
   display: flex; flex-direction: column; gap: 14px;
   width: min(430px, 92vw); max-height: 86vh; overflow-y: auto;
 }
 .cnt-row { display: flex; gap: 10px; }
 .cnt-row .btn { flex: 1; font-size: 20px; font-weight: 700; }
-.cnt-row .btn[data-sel] { background: var(--accent); color: var(--on-accent); border-color: transparent; }
+.cnt-row .btn[data-sel] { background: var(--accent-tile); color: var(--on-accent); border-color: var(--accent-bevel); }
 .name-row { display: flex; align-items: center; gap: 10px; }
 .name-row .eyebrow { width: 22px; text-align: right; }
 .name-row input {
-  flex: 1; min-height: 48px; background: var(--invert-bg);
-  border: 1px solid var(--hairline); border-radius: var(--radius);
+  flex: 1; min-height: 48px; background: #0A0A0E;
+  border: 2px solid; border-color: var(--bevel-in); border-radius: var(--radius);
   color: var(--invert-text); padding: 0 12px; font-size: 16px;
   letter-spacing: 0.05em; text-transform: uppercase; font-family: var(--font-body);
   user-select: text; -webkit-user-select: text;
@@ -134,22 +145,33 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   position: absolute; top: max(10px, env(safe-area-inset-top)); left: 0; right: 0;
   display: flex; flex-direction: column; align-items: center; gap: 6px; pointer-events: none;
 }
-#shellctr { display: flex; gap: 16px; font-weight: 700; font-size: 16px; letter-spacing: 0.08em; }
+#shellctr {
+  display: flex; gap: 16px; font-weight: 700; font-size: 16px; letter-spacing: 0.08em;
+  background: #0A0A0E; border: 2px solid; border-color: var(--bevel-in);
+  padding: 4px 12px; /* inset instrument window */
+}
 #shellctr .live { color: var(--accent); }
 #shellctr .blank { color: var(--text-muted); }
 #hpchip {
   display: none; font-size: 12px; font-weight: 700; letter-spacing: 0.08em;
-  color: var(--accent); border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
+  color: var(--accent); border: 2px solid; border-color: var(--bevel-up);
+  background: var(--tile);
   padding: 4px 9px; border-radius: var(--radius);
 }
 #hpchip[data-on] { display: block; }
 #plates { position: absolute; inset: 0; pointer-events: none; }
 .plate {
   position: absolute; left: 0; top: 0; transform: translate(-50%, -100%);
-  background: color-mix(in srgb, var(--invert-bg) 80%, transparent);
-  border: 1px solid var(--hairline); border-radius: var(--radius);
+  background: color-mix(in srgb, var(--invert-bg) 84%, transparent);
+  border: 2px solid;
+  border-color: rgba(240, 237, 230, 0.16) rgba(0, 0, 0, 0.65) rgba(0, 0, 0, 0.65) rgba(240, 237, 230, 0.16);
+  border-radius: var(--radius);
   padding: 7px 10px; display: flex; flex-direction: column; gap: 4px;
   align-items: center; min-width: 76px; transition: opacity 0.5s, filter 0.5s;
+}
+.plate[data-targetable] .pname::before, .plate[data-aimed] .pname::before {
+  content: '◆ '; color: var(--accent);
+  animation: llblink 0.7s steps(1) infinite;
 }
 .plate .pname { font-size: 13px; font-weight: 700; letter-spacing: 0.07em; white-space: nowrap; }
 .plate .prow { display: flex; gap: 4px; align-items: center; min-height: 8px; }
@@ -179,17 +201,22 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 #handrow { display: flex; gap: 8px; align-items: stretch; pointer-events: auto; flex-wrap: wrap; justify-content: center; }
 .icard {
   position: relative; min-width: 100px; min-height: 56px;
-  background: var(--invert-bg-elevated); border: 1px solid var(--hairline);
+  background: var(--tile); border: 2px solid; border-color: var(--bevel-up);
   border-radius: var(--radius); padding: 9px 11px;
   display: flex; flex-direction: column; gap: 4px; align-items: flex-start;
   text-align: left; text-transform: none; letter-spacing: 0;
 }
 .icard .iname { font-weight: 700; font-size: 14px; letter-spacing: 0.06em; text-transform: uppercase; }
+.icard .iname::before { content: '◆ '; color: var(--accent); opacity: 0; }
+.icard.open .iname::before { opacity: 1; animation: llblink 0.7s steps(1) infinite; }
+.icard[data-illegal] .iname::before { color: var(--text-faint); }
+@keyframes llblink { 50% { opacity: 0; } }
 .icard .idesc { display: none; font-size: 12px; color: var(--text-muted); max-width: 170px; line-height: 1.35; }
 .icard .iwhy { display: none; font-size: 11px; color: var(--text-faint); letter-spacing: 0.05em; text-transform: uppercase; }
 .icard .iuse {
-  display: none; margin-top: 4px; background: var(--accent); color: var(--on-accent);
-  border-radius: var(--radius); padding: 9px 16px; font-weight: 700;
+  display: none; margin-top: 4px; background: var(--accent-tile); color: var(--on-accent);
+  border: 2px solid; border-color: var(--accent-bevel);
+  border-radius: var(--radius); padding: 7px 16px; font-weight: 700;
   font-size: 13px; letter-spacing: 0.08em; min-height: 36px; text-transform: uppercase;
 }
 .icard.open { outline: 2px solid var(--accent); outline-offset: 1px; }
@@ -205,6 +232,7 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .holdbtn {
   position: relative; overflow: hidden; min-height: 56px; padding: 13px 36px;
   border-radius: var(--radius); cursor: pointer;
+  border: 2px solid; border-color: var(--bevel-up);
   display: flex; flex-direction: column; align-items: center; gap: 3px;
   font-family: var(--font-display); font-weight: 800; text-transform: uppercase;
   letter-spacing: -0.01em; font-size: 20px; line-height: 1.05;
@@ -212,9 +240,13 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   transition: transform 0.12s ease, filter 0.12s ease;
 }
 .holdbtn:hover { filter: brightness(1.15); }
-.holdbtn[data-holding] { transform: scale(0.965); filter: brightness(1.2); }
-.holdbtn .fill { position: absolute; inset: 0; width: 0%; pointer-events: none; opacity: 0; border-right: 2px solid currentColor; transition: opacity 0.1s; }
-.holdbtn[data-holding] .fill { opacity: 1; }
+.holdbtn[data-holding] { transform: scale(0.97); filter: brightness(1.2); border-color: var(--bevel-in); }
+.holdbtn .fill {
+  position: absolute; inset: 0; width: 0%; pointer-events: none; opacity: 0;
+  background: repeating-linear-gradient(90deg, currentColor 0 8px, transparent 8px 11px);
+  border-right: 2px solid currentColor; transition: opacity 0.1s;
+}
+.holdbtn[data-holding] .fill { opacity: 0.3; }
 .holdbtn .lbl { position: relative; }
 .holdbtn .hint {
   position: relative; font-family: var(--font-body); font-weight: 600;
@@ -228,8 +260,7 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   25% { transform: translateX(-5px); }
   75% { transform: translateX(5px); }
 }
-#firebtn { background: var(--accent); color: var(--on-accent); }
-#firebtn .fill { background: rgba(0, 43, 18, 0.30); }
+#firebtn { background: var(--accent-tile); color: var(--on-accent); border-color: var(--accent-bevel); }
 
 /* ---------- banner ---------- */
 #banner {
@@ -247,17 +278,34 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .t-blank { color: var(--text-muted); }
 .t-faint { color: var(--text-faint); }
 
-/* ---------- handoff ---------- */
-#scr-handoff { background: var(--accent); z-index: 20; }
+/* ---------- handoff: PS1 memory-card system screen ---------- */
+#scr-handoff { background: var(--sys-bg); z-index: 20; overflow: hidden; }
 #scr-handoff::before {
-  content: ''; position: absolute; inset: 0;
-  background: radial-gradient(75% 65% at 50% 42%, var(--accent-dim) 0%, transparent 72%);
+  content: ''; position: absolute; inset: -80px;
+  background: repeating-linear-gradient(45deg, rgba(40, 40, 60, 0.20) 0 12px, transparent 12px 24px);
+  animation: lldrift 22s linear infinite;
 }
-#handoff-inner { position: relative; display: flex; flex-direction: column; align-items: center; gap: 28px; padding: 24px; }
-#passto { color: var(--on-accent); font-size: clamp(15px, 3vw, 21px); letter-spacing: 0.1em; font-weight: 700; text-transform: uppercase; }
-#passname { color: var(--on-accent); font-size: clamp(54px, 17vw, 150px); text-align: center; }
-#iam { background: var(--handoff-cta); color: var(--accent); font-size: 17px; }
-#iam .fill { background: color-mix(in srgb, var(--accent) 22%, transparent); }
+@keyframes lldrift { to { transform: translate(33.94px, 33.94px); } }
+#handoff-inner { position: relative; display: flex; flex-direction: column; align-items: center; gap: 22px; padding: 24px; }
+#passto { color: var(--text-muted); font-size: clamp(13px, 2.6vw, 17px); letter-spacing: 0.18em; text-transform: uppercase; }
+#memcard {
+  position: relative; width: 62px; height: 80px;
+  background: var(--tile); border: 2px solid; border-color: var(--bevel-up);
+  animation: llbob 2.8s ease-in-out infinite;
+}
+#memcard::before { /* card ridges */
+  content: ''; position: absolute; top: 6px; left: 8px; right: 8px; height: 10px;
+  background: repeating-linear-gradient(90deg, #2E2E3A 0 6px, transparent 6px 10px);
+}
+#memcard::after { /* label window */
+  content: ''; position: absolute; bottom: 8px; left: 8px; right: 8px; height: 26px;
+  background: #0A0A0E; border: 2px solid; border-color: var(--bevel-in);
+}
+@keyframes llbob { 50% { transform: translateY(-6px); } }
+#passlbl { color: var(--text-muted); font-size: clamp(14px, 3vw, 18px); letter-spacing: 0.18em; text-transform: uppercase; }
+#passname { color: var(--invert-text); font-size: clamp(48px, 15vw, 130px); text-align: center; }
+#passname::before { content: '◆ '; color: var(--accent); font-size: 0.45em; vertical-align: 0.42em; }
+#iam { background: var(--tile); color: var(--accent); font-size: 17px; }
 
 /* ---------- private ---------- */
 #scr-private { background: var(--invert-bg); z-index: 20; gap: 16px; }
@@ -265,8 +313,8 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 #pitems { display: flex; flex-direction: column; gap: 8px; width: min(380px, 88vw); }
 .pitem {
   display: flex; flex-direction: column; gap: 3px; padding: 10px 12px;
-  border: 1px solid var(--hairline); border-radius: var(--radius);
-  background: var(--invert-bg-elevated);
+  border: 2px solid; border-color: var(--bevel-up); border-radius: var(--radius);
+  background: var(--tile);
 }
 .pitem .iname { font-weight: 700; font-size: 14px; letter-spacing: 0.06em; }
 .pitem .idesc { font-size: 12px; color: var(--text-muted); line-height: 1.35; }
@@ -309,6 +357,8 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   .plate, #banner .btxt { transition: none; }
   .holdbtn[data-nudge] { animation: none; }
   .holdbtn { transition: none; }
+  #scr-handoff::before, #memcard { animation: none; }
+  .icard.open .iname::before, .plate[data-targetable] .pname::before, .plate[data-aimed] .pname::before { animation: none; }
 }
 </style>
 </head>
@@ -354,7 +404,9 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 
   <section class="screen" id="scr-handoff">
     <div id="handoff-inner">
-      <div id="passto">PASS TO &rarr;</div>
+      <div id="passto">&mdash; DEVICE HANDOFF &mdash;</div>
+      <div id="memcard"></div>
+      <div id="passlbl">PASS TO &rarr;</div>
       <div class="display" id="passname"></div>
       <button class="holdbtn" id="iam"><span class="fill"></span><span class="lbl"></span><span class="hint">HOLD TO CONFIRM</span></button>
     </div>
