@@ -31,6 +31,6 @@ Internet is required for the Three.js CDN and DotGothic16.
 
 | Param | Effect |
 |---|---|
-| `?seed=42` | Reproducible shuffles/draws (seed shown on title screen) |
+| `?seed=42` | Reproducible shuffles/draws (shown as TABLE NO. on the title screen) |
 | `?debug=1` | 3× animation speed, short hold-to-confirm, `window.LL` console handles (`LL.give(player, 'lens')`, `LL.hurt(player)`) |
 | `?sim=1` | Headless self-test: 300 random reducer-only matches, invariants asserted, PASS/FAIL panel |

@@ -50,8 +50,8 @@ window.addEventListener('load', function () {
   --accent-dim: #00B848;
   --on-accent: #002B12;
   --paper: #F3F0EB;
-  --font-display: 'Ancho', 'DotGothic16', sans-serif;
-  --font-body: 'DotGothic16', sans-serif;
+  --font-display: 'Ancho', 'DotGothic16', ui-monospace, monospace;
+  --font-body: 'DotGothic16', ui-monospace, 'Courier New', monospace; /* offline: degrade to system terminal voice */
   --radius: 0px; /* PS1 system chrome: hard corners everywhere */
   /* PS1 memory-card chrome */
   --sys-bg: #0B0B10;
@@ -62,6 +62,9 @@ window.addEventListener('load', function () {
   --tile: #1D1D26; /* solid fills only — depth comes from the bevels */
   --accent-tile: var(--accent);
   --accent-bevel: #54F58F #00521F #00521F #54F58F;
+  /* paper: affirmative CTAs — green is reserved for shell-fate and FIRE */
+  --paper-ink: #14120E;
+  --paper-bevel: #FFFDF7 #9A9284 #9A9284 #FFFDF7;
 }
 * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 html, body {
@@ -100,7 +103,7 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 }
 .btn:active:not(:disabled) { border-color: var(--bevel-in); transform: translateY(1px); }
 .btn:disabled { opacity: 0.35; cursor: default; }
-.btn-accent { background: var(--accent-tile); color: var(--on-accent); border-color: var(--accent-bevel); }
+.btn-accent { background: var(--paper); color: var(--paper-ink); border-color: var(--paper-bevel); }
 .btn-ghost { background: transparent; border-color: #2A2A33 #101014 #101014 #2A2A33; }
 .btn:focus-visible, .icard:focus-visible, .plate:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
@@ -225,9 +228,11 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .hpdot { width: 7px; height: 7px; border-radius: 50%; background: var(--invert-text); }
 .hpdot.off { background: transparent; border: 1px solid var(--hairline); }
 .itdot { width: 5px; height: 5px; border-radius: 1px; background: var(--text-faint); }
-.cufftag { font-size: 10px; font-weight: 700; color: var(--accent); letter-spacing: 0.08em; display: none; }
+.cufftag { font-size: 10px; font-weight: 700; color: var(--text-muted); letter-spacing: 0.08em; display: none; }
 .plate[data-cuffed] .cufftag { display: block; }
-.plate[data-dead] { opacity: 0.3; filter: grayscale(1); }
+.deadtag { font-size: 10px; color: var(--text-faint); letter-spacing: 0.08em; display: none; }
+.plate[data-dead] .deadtag { display: block; }
+.plate[data-dead] { opacity: 0.45; filter: grayscale(1); }
 .plate[data-turn] { border-color: rgba(240, 237, 230, 0.4); }
 .plate[data-targetable] {
   pointer-events: auto; cursor: pointer;
@@ -238,6 +243,11 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   position: absolute; top: 17%; left: 0; right: 0; text-align: center; pointer-events: none;
   font-size: clamp(18px, 4.6vw, 32px); padding: 0 14px;
   text-shadow: 0 2px 22px rgba(0, 0, 0, 0.65);
+}
+.instr-sub {
+  display: block; font-family: var(--font-body); font-size: 13px;
+  letter-spacing: 0.08em; color: var(--text-muted); margin-top: 8px;
+  text-transform: uppercase;
 }
 #bottombar {
   position: absolute; bottom: max(12px, env(safe-area-inset-bottom)); left: 0; right: 0;
@@ -263,8 +273,8 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 .icard .idesc { display: none; font-size: 12px; color: var(--text-muted); max-width: 170px; line-height: 1.35; }
 .icard .iwhy { display: none; font-size: 11px; color: var(--text-faint); letter-spacing: 0.05em; text-transform: uppercase; }
 .icard .iuse {
-  display: none; margin-top: 4px; background: var(--accent-tile); color: var(--on-accent);
-  border: 2px solid; border-color: var(--accent-bevel);
+  display: none; margin-top: 4px; background: var(--paper); color: var(--paper-ink);
+  border: 2px solid; border-color: var(--paper-bevel);
   border-radius: var(--radius); padding: 7px 16px; font-weight: 700;
   font-size: 13px; letter-spacing: 0.08em; min-height: 36px; text-transform: uppercase;
 }
@@ -374,11 +384,13 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 }
 .ovl[data-active] { display: flex; }
 .ovl .panel { gap: 10px; }
+#settings { z-index: 46; } /* stacks over the pause panel when opened from it */
 .set-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; min-height: 40px; }
 .set-lbl { font-size: 14px; letter-spacing: 0.07em; color: var(--invert-text); text-transform: uppercase; }
+.set-sub { display: block; font-size: 10px; color: var(--text-faint); letter-spacing: 0.06em; margin-top: 2px; }
 .set-val { color: var(--text-muted); font-size: 14px; }
 .set-tgl { min-width: 84px; min-height: 40px; padding: 8px 14px; color: var(--text-faint); }
-.set-tgl[data-on] { color: var(--accent); }
+.set-tgl[data-on] { color: var(--paper); }
 #set-vol {
   -webkit-appearance: none; appearance: none; width: 100%; height: 16px;
   background: #0A0A0E; border: 2px solid; border-color: var(--bevel-in); outline-offset: 3px;
@@ -468,7 +480,7 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   </section>
 
   <section class="screen" id="scr-table">
-    <button class="btn btn-ghost" id="exitbtn">&#10006; EXIT</button>
+    <button class="btn btn-ghost" id="exitbtn">PAUSE</button>
     <div id="topbar">
       <div class="eyebrow" id="roundlbl"></div>
       <div id="shellctr"><span class="live"></span><span class="blank"></span></div>
@@ -505,7 +517,7 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
     <div class="eyebrow">THE LAST LIGHT BELONGS TO</div>
     <div class="display" id="winname"></div>
     <div class="eyebrow" id="windetail"></div>
-    <button class="btn btn-accent" id="restartbtn" style="min-height:54px;min-width:200px;">RESTART</button>
+    <button class="btn btn-accent" id="restartbtn" style="min-height:54px;min-width:200px;">DEAL AGAIN</button>
   </section>
 
   <div id="banner"><div class="btxt display"></div></div>
@@ -521,11 +533,12 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
       <div class="display" style="font-size:clamp(24px,6vw,40px);">SETTINGS</div>
       <div class="set-row"><span class="set-lbl">VOLUME</span><span class="set-val" id="set-vol-val"></span></div>
       <input type="range" id="set-vol" min="0" max="100" step="5" aria-label="Volume">
-      <div class="set-row"><span class="set-lbl">FILM GRAIN</span><button class="btn set-tgl" data-key="grain"></button></div>
-      <div class="set-row"><span class="set-lbl">SCANLINES</span><button class="btn set-tgl" data-key="scan"></button></div>
-      <div class="set-row"><span class="set-lbl">PS1 DITHER</span><button class="btn set-tgl" data-key="dither"></button></div>
-      <div class="set-row"><span class="set-lbl">VERTEX WOBBLE</span><button class="btn set-tgl" data-key="wobble"></button></div>
-      <div class="set-row"><span class="set-lbl">SHAKE &amp; FLASH</span><button class="btn set-tgl" data-key="shake"></button></div>
+      <div class="set-row"><span class="set-lbl">FILM GRAIN<span class="set-sub">SCREEN NOISE TEXTURE</span></span><button class="btn set-tgl" data-key="grain"></button></div>
+      <div class="set-row"><span class="set-lbl">SCANLINES<span class="set-sub">CRT LINE OVERLAY</span></span><button class="btn set-tgl" data-key="scan"></button></div>
+      <div class="set-row"><span class="set-lbl">PS1 DITHER<span class="set-sub">CHUNKY COLOR BANDING</span></span><button class="btn set-tgl" data-key="dither"></button></div>
+      <div class="set-row"><span class="set-lbl">VERTEX WOBBLE<span class="set-sub">WARPING 3D JITTER</span></span><button class="btn set-tgl" data-key="wobble"></button></div>
+      <div class="set-row"><span class="set-lbl">SHAKE &amp; FLASH<span class="set-sub">IMPACT EFFECTS &mdash; PHOTOSENSITIVITY</span></span><button class="btn set-tgl" data-key="shake"></button></div>
+      <div class="set-row"><span class="set-lbl">FAST DEAL<span class="set-sub">QUICKER BANNERS &amp; RITUALS</span></span><button class="btn set-tgl" data-key="fast"></button></div>
       <div class="set-row">
         <button class="btn btn-ghost" id="set-reset" style="font-size:12px;">RESET DEFAULTS</button>
         <button class="btn btn-accent" id="set-close" style="flex:1;">CLOSE</button>
@@ -535,10 +548,11 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 
   <div id="quitov" class="ovl">
     <div class="panel" style="align-items:center;text-align:center;">
-      <div class="display" style="font-size:clamp(24px,6vw,40px);">ABANDON MATCH?</div>
-      <div class="eyebrow">THE TABLE FORGETS NO ONE &mdash; PROGRESS WILL BE LOST</div>
-      <button class="holdbtn" id="quithold"><span class="fill"></span><span class="lbl">QUIT MATCH</span><span class="hint">HOLD TO CONFIRM</span></button>
-      <button class="btn btn-ghost" id="staybtn" style="min-width:160px;">STAY</button>
+      <div class="display" style="font-size:clamp(24px,6vw,40px);">PAUSED</div>
+      <div class="eyebrow">THE TABLE FORGETS NO ONE</div>
+      <button class="btn" id="pausesettings" style="min-width:220px;">SETTINGS</button>
+      <button class="holdbtn" id="quithold"><span class="fill"></span><span class="lbl">QUIT MATCH</span><span class="hint">HOLD TO CONFIRM &mdash; PROGRESS LOST</span></button>
+      <button class="btn btn-accent" id="staybtn" style="min-width:220px;">STAY</button>
     </div>
   </div>
 
@@ -593,7 +607,7 @@ const T = {
 };
 
 // player settings — persisted in localStorage, applied via applySettings()
-const DEFAULT_SETTINGS = { vol: 0.9, grain: true, scan: true, dither: true, wobble: true, shake: true };
+const DEFAULT_SETTINGS = { vol: 0.9, grain: true, scan: true, dither: true, wobble: true, shake: true, fast: false };
 const SETTINGS = Object.assign({}, DEFAULT_SETTINGS, (() => {
   try { return JSON.parse(localStorage.getItem('ll_settings') || '{}'); } catch (e) { return {}; }
 })());
@@ -657,8 +671,10 @@ function itemLegal(item) {
     case 'lens':   return { ok: true };
     case 'flask':  return { ok: true };
     case 'cuffs': {
-      const t = oppIdxs().filter(i => !state.players[i].cuffed);
-      return t.length ? { ok: true } : { ok: false, why: 'NO ONE TO CUFF' };
+      const opps = oppIdxs();
+      const t = opps.filter(i => !state.players[i].cuffed);
+      if (t.length) return { ok: true };
+      return { ok: false, why: opps.length ? 'ALREADY CUFFED' : 'NO ONE TO CUFF' };
     }
     case 'hollow': return state.hollowPoint ? { ok: false, why: 'ALREADY ARMED' } : { ok: true };
     case 'cig':    return p.hp < 4 ? { ok: true } : { ok: false, why: 'FULL HP' };
@@ -960,6 +976,12 @@ const sfx = {
   shimmer() { for (let i = 0; i < 4; i++) toneHit({ f0: 1900 - 320 * i, dur: 0.05, type: 'triangle', gain: 0.05, at: i * 0.05 }); },
   wasted() { toneHit({ f0: 300, f1: 120, dur: 0.25, type: 'square', gain: 0.06 }); },
   elim() { toneHit({ f0: 70, f1: 32, dur: 1.1, type: 'sine', gain: 0.3 }); noiseHit({ dur: 0.9, lp: 500, gain: 0.16 }); },
+  win() { // the room settles: slow rising triad over a soft air swell
+    toneHit({ f0: 98, dur: 1.4, type: 'sine', gain: 0.22 });
+    toneHit({ f0: 147, dur: 1.1, type: 'sine', gain: 0.16, at: 0.35 });
+    toneHit({ f0: 196, dur: 1.0, type: 'triangle', gain: 0.1, at: 0.7 });
+    noiseHit({ dur: 1.2, lp: 800, gain: 0.06, at: 0.2 });
+  },
 };
 
 /* ============================================================
@@ -1383,6 +1405,10 @@ function aimGunAt(i) {
 
 function kickBulb(amt) { SW.A = Math.min(0.55, SW.A + amt); }
 function flickerBulb(amp) { SW.flickT = 0.3; SW.flickAmp = amp; }
+function steadyBulb() { SW.A = 0.045; SW.flickT = 0; } // the last light settles
+function flareSeat(i) {
+  W.flames[i].forEach(fl => { if (fl.userData.on) { fl.userData.boost = 2.1; fl.material.opacity = 1; } });
+}
 
 function sceneUpdate(dt, tSec) {
   // bulb pendulum: decaying sine, re-excited by gunshots
@@ -1402,11 +1428,11 @@ function sceneUpdate(dt, tSec) {
     AC.buzzGain.gain.value = 0.002 + SW.A * 0.016;
     AC.buzzOsc.frequency.value = 100 + SW.A * 36;
   }
-  // candle flames flicker
+  // candle flames flicker (boost > 1 = victory flare)
   for (const flames of W.flames) {
     for (const fl of flames) {
       if (!fl.userData.on) continue;
-      const s = 0.07 * (0.82 + 0.22 * Math.sin(tSec * 13 + fl.userData.phase) * Math.sin(tSec * 7.3 + fl.userData.phase * 2));
+      const s = 0.07 * (fl.userData.boost || 1) * (0.82 + 0.22 * Math.sin(tSec * 13 + fl.userData.phase) * Math.sin(tSec * 7.3 + fl.userData.phase * 2));
       fl.scale.set(s, s * 1.5, 1);
     }
   }
@@ -1555,6 +1581,7 @@ function applySettings() {
   document.getElementById('grain').style.display = SETTINGS.grain ? '' : 'none';
   postMat.uniforms.uScan.value = SETTINGS.scan ? 1 : 0;
   postMat.uniforms.uDither.value = SETTINGS.dither ? 1 : 0;
+  timeScale = DEBUG ? 3 : (SETTINGS.fast ? 1.8 : 1); // FAST DEAL: holds stay real-time
   updateSnap();
 }
 
@@ -1718,7 +1745,7 @@ function buildPlates() {
     const d = document.createElement('button');
     d.className = 'plate';
     d.dataset.idx = i;
-    d.innerHTML = '<span class="pname"></span><span class="prow hp"></span><span class="prow it"></span><span class="cufftag">CUFFED</span>';
+    d.innerHTML = '<span class="pname"></span><span class="prow hp"></span><span class="prow it"></span><span class="cufftag">CUFFED</span><span class="deadtag">SEAT AVAILABLE</span>';
     els.plates.appendChild(d);
     return d;
   });
@@ -1784,7 +1811,7 @@ const clearBottom = () => { els.handrow.innerHTML = ''; els.actionrow.innerHTML 
 
 // ---- screens
 async function uiTitle() {
-  els.seedTag.textContent = 'SEED ' + SEED + (DEBUG ? ' · DEBUG' : '');
+  els.seedTag.textContent = 'TABLE NO. ' + SEED + (DEBUG ? ' · DEBUG' : '');
   show('title');
   await onceTap(els.title);
   audioInit();
@@ -1871,7 +1898,10 @@ async function uiPrivate(p) {
   els.privName.textContent = p.name;
   els.pitems.innerHTML = p.items.length
     ? p.items.map(k => `<div class="pitem"><span class="ihead">${iconSvg(k, 22)}<span class="iname">${ITEMS[k].name}</span></span><span class="idesc">${ITEMS[k].desc}</span></div>`).join('')
-    : '<div class="pitem-empty">NO ITEMS</div>';
+    : '<div class="pitem-empty">EMPTY HANDED</div>';
+  // GDD §4.2 defensive: lens knowledge always expires at the firer's own shot under current
+  // rules, so this line is unreachable today — kept so any future rule that lets knowledge
+  // survive a handoff (or a skipped fire) renders correctly without a code change.
   els.lensline.innerHTML = p.lens ? 'NEXT SHELL: ' + shellSpan(p.lens.shell) : '';
   await onceTap(els.priv); // stays up until the player taps — never advances on its own
   show('table');
@@ -1952,7 +1982,8 @@ function uiFireConfirm(targetIdx) {
     const sc = makeScope();
     clearBottom();
     const tname = state.players[targetIdx].name;
-    els.instr.textContent = targetIdx === state.turn ? 'THE BARREL TURNS ON YOU' : 'AIMED AT ' + tname;
+    if (targetIdx === state.turn) els.instr.innerHTML = 'THE BARREL TURNS ON YOU<span class="instr-sub">A BLANK KEEPS YOUR TURN</span>';
+    else els.instr.textContent = 'AIMED AT ' + tname;
     plateEls[targetIdx].setAttribute('data-aimed', '');
     const fire = document.createElement('button');
     fire.className = 'holdbtn';
@@ -1984,7 +2015,8 @@ async function uiGameOver() {
   });
 }
 
-// ---- settings overlay (opened from the title screen)
+// ---- settings overlay (opened from the title screen and the pause panel)
+let openSettings = () => {};
 function initSettingsUI() {
   const ov = $('#settings');
   const volEl = $('#set-vol'), volVal = $('#set-vol-val');
@@ -1997,9 +2029,10 @@ function initSettingsUI() {
       btn.toggleAttribute('data-on', on);
     });
   };
+  openSettings = () => { renderSet(); ov.setAttribute('data-active', ''); };
   const sb = $('#settingsbtn');
   sb.addEventListener('pointerdown', e => e.stopPropagation()); // don't trigger TAP TO BEGIN
-  sb.addEventListener('click', e => { e.stopPropagation(); sfx.uiTick(); renderSet(); ov.setAttribute('data-active', ''); });
+  sb.addEventListener('click', e => { e.stopPropagation(); sfx.uiTick(); openSettings(); });
   $('#set-close').addEventListener('click', () => { sfx.uiTick(); ov.removeAttribute('data-active'); });
   $('#set-reset').addEventListener('click', () => {
     Object.assign(SETTINGS, DEFAULT_SETTINGS);
@@ -2017,9 +2050,10 @@ function initSettingsUI() {
   }));
 }
 
-// ---- in-game exit (table view) -> hold-to-confirm -> back to title
+// ---- in-game pause (table view): settings access + hold-to-quit
 function initExitUI() {
   const ov = $('#quitov');
+  $('#pausesettings').addEventListener('click', () => { sfx.uiTick(); openSettings(); }); // settings stacks over the pause panel
   $('#exitbtn').addEventListener('click', () => {
     sfx.uiTick();
     // fresh clones so stale listeners from a previous open die with the nodes
@@ -2066,6 +2100,14 @@ const EVH = {
   },
   async ROUND_END() { await showBanner('CYLINDER EMPTY', { dur: 900 }); },
   async EXTRA_TURN() { await showBanner('<span class="t-blank">BLANK</span> — GO AGAIN', { dur: 950 }); },
+  async WIN(e) {
+    // "the last light": the bulb steadies, the camera finds the survivor, their candles flare
+    steadyBulb();
+    camAim(e.player);
+    sfx.win();
+    flareSeat(e.player);
+    await wait(2100);
+  },
   async SKIPPED(e) { sfx.cuff(); renderAll(); await showBanner(bico('cuffs') + pname(e.player) + ' CUFFED — SKIPPED'); },
 };
 async function playEvents(ev) {
@@ -2107,6 +2149,13 @@ async function animShot(e) {
   }
   await advanceCyl();
   renderAll();
+  // speak the result — the table must be able to read it from a meter away.
+  // (blank+self stays quiet here: the EXTRA_TURN banner narrates that case)
+  if (e.shell === 'live') {
+    await showBanner(shellSpan('live') + ' — ' + pname(e.target) + ' -' + e.dmg + ' HP', { dur: 950 });
+  } else if (e.target !== e.shooter) {
+    await showBanner(shellSpan('blank'), { dur: 800 });
+  }
 }
 
 async function resolveFire(target) {
@@ -2120,7 +2169,7 @@ async function resolveFire(target) {
   const ev = dispatch({ t: 'FIRE', target });
   await animShot(ev.find(e => e.t === 'SHOT'));
   for (const e of ev) { if (e.t !== 'SHOT') { const h = EVH[e.t]; if (h) await h(e); } }
-  camOrbit();
+  if (state.winner === null) camOrbit(); // on a win, WIN's ceremony owns the camera
   uiUnlock();
   return {
     extra: ev.some(e => e.t === 'EXTRA_TURN'),
@@ -2149,7 +2198,7 @@ async function playTurn() {
       continue;
     }
     // aim
-    const target = await uiPickTarget(livingIdxs(), { label: 'POINT IT — AT ANYONE' });
+    const target = await uiPickTarget(livingIdxs(), { label: 'POINT IT — AT ANYONE<span class="instr-sub">A BLANK ON YOURSELF KEEPS THE TURN</span>' });
     if (target === null) continue;
     aimGunAt(target);
     await camAim(target); // camera pushes in along the barrel axis
@@ -2191,6 +2240,7 @@ async function runMatch() {
     }
   }
   await uiGameOver();
+  camOrbit(); // release the ceremony framing for the next match
 }
 
 async function flow() {
