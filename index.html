@@ -421,6 +421,20 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   display: flex; gap: 8px;
 }
 #settingsbtn, #langbtn { font-size: 13px; min-height: 44px; padding: 9px 16px; }
+#settingsbtn { padding: 9px 12px; min-width: 44px; } /* icon-only gear */
+#rulesbtn {
+  position: absolute; top: max(14px, env(safe-area-inset-top)); left: 14px;
+  font-size: 13px; min-height: 44px; padding: 9px 16px;
+}
+/* ---------- rules one-pager ---------- */
+#rules .panel { gap: 12px; }
+.rsec { display: flex; flex-direction: column; gap: 4px; }
+.rbody { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+.rrow { display: flex; gap: 8px; align-items: flex-start; }
+.rrow .iicon { flex: none; margin-top: 1px; }
+.rtext { font-size: 12px; line-height: 1.4; }
+.rname { color: var(--invert-text); font-weight: 700; letter-spacing: 0.05em; }
+.rdesc { color: var(--text-muted); }
 #exitbtn {
   position: absolute; top: max(14px, env(safe-area-inset-top)); left: 14px;
   font-size: 13px; min-height: 44px; padding: 9px 16px; pointer-events: auto;
@@ -482,9 +496,10 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
     <div class="display" id="title-name">LAST<br>LIGHT</div>
     <div class="eyebrow" id="tap-begin" data-i18n="tapBegin">TAP TO BEGIN</div>
     <div id="seed-tag"></div>
+    <button class="btn btn-ghost" id="rulesbtn" data-i18n="howToPlay">HOW TO PLAY</button>
     <div id="title-corner">
       <button class="btn btn-ghost" id="langbtn">中文</button>
-      <button class="btn btn-ghost" id="settingsbtn" data-i18n="settings">SETTINGS</button>
+      <button class="btn btn-ghost" id="settingsbtn" aria-label="Settings"></button>
     </div>
   </section>
 
@@ -546,6 +561,20 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
     <div class="eyebrow" data-i18n="privateEyes">PRIVATE &mdash; YOUR EYES ONLY</div>
     <div class="display" id="lenstxt"></div>
     <div class="eyebrow" data-i18n="tapHide">TAP TO HIDE</div>
+  </div>
+
+  <div id="rules" class="ovl">
+    <div class="panel">
+      <div class="display" style="font-size:clamp(24px,6vw,40px);" data-i18n="howToPlay">HOW TO PLAY</div>
+      <div class="eyebrow" data-i18n="rulesTag">2&ndash;4 PLAYERS &middot; ONE DEVICE &middot; 4 HP EACH &middot; LAST LIGHT WINS</div>
+      <div class="rsec"><span class="eyebrow" data-i18n="rLoadH">THE LOAD</span><span class="rbody" data-i18n="rLoadB"></span></div>
+      <div class="rsec"><span class="eyebrow" data-i18n="rTurnH">YOUR TURN</span><span class="rbody" data-i18n="rTurnB"></span></div>
+      <div class="rsec"><span class="eyebrow" data-i18n="rGoldenH">THE GOLDEN RULE</span><span class="rbody" data-i18n="rGoldenB"></span></div>
+      <div class="rsec"><span class="eyebrow" data-i18n="rPassH">THE PASS</span><span class="rbody" data-i18n="rPassB"></span></div>
+      <div class="rsec"><span class="eyebrow" data-i18n="rPropsH">THE PROPS</span><div id="rulesitems" style="display:flex;flex-direction:column;gap:6px;"></div></div>
+      <div class="eyebrow" style="text-align:center;" data-i18n="rFooter">COUNT THE SHELLS &middot; READ THE ROOM &middot; KEEP YOUR LIGHT</div>
+      <button class="btn btn-accent" id="rules-close" style="min-height:50px;" data-i18n="gotIt">GOT IT</button>
+    </div>
   </div>
 
   <div id="settings" class="ovl">
@@ -644,6 +673,19 @@ const I18N = {
     setShake: 'SHAKE & FLASH', setShakeSub: 'IMPACT EFFECTS — PHOTOSENSITIVITY',
     setFast: 'FAST DEAL', setFastSub: 'QUICKER BANNERS & RITUALS',
     resetDefaults: 'RESET DEFAULTS', close: 'CLOSE',
+    howToPlay: 'HOW TO PLAY',
+    rulesTag: '2–4 PLAYERS · ONE DEVICE · 4 HP EACH · LAST LIGHT WINS',
+    rLoadH: 'THE LOAD',
+    rLoadB: 'EACH ROUND THE DRUM IS LOADED IN FULL VIEW — SAY, 2 LIVE / 3 BLANK — THEN SPUN BLIND. THE COUNTER UP TOP KEEPS THE MATH.',
+    rTurnH: 'YOUR TURN',
+    rTurnB: 'PLAY ANY ITEMS, THEN POINT THE REVOLVER AT ANYONE — INCLUDING YOURSELF — AND HOLD TO FIRE.',
+    rGoldenH: 'THE GOLDEN RULE',
+    rGoldenB: 'A BLANK ON YOURSELF KEEPS YOUR TURN. A LIVE SHELL COSTS 1 HP — 2 IF A HOLLOW POINT IS ARMED. AT 0 HP YOUR CANDLES GO OUT FOR GOOD.',
+    rPassH: 'THE PASS',
+    rPassB: 'HAND THE DEVICE OVER ONLY ON THE HANDOFF SCREEN — IT HIDES EVERY SECRET.',
+    rPropsH: 'THE PROPS — DRAW TO 3 EACH ROUND, KEEP LEFTOVERS',
+    rFooter: 'COUNT THE SHELLS · READ THE ROOM · KEEP YOUR LIGHT',
+    gotIt: 'GOT IT',
     items: {
       lens:   ['LENS',         'Peek at the next shell, privately. The knowledge dies when that shell fires or moves.'],
       flask:  ['FLASK',        'Eject the next shell unfired. Its type is revealed to everyone.'],
@@ -694,6 +736,19 @@ const I18N = {
     setShake: '震动与闪光', setShakeSub: '冲击特效 — 光敏注意',
     setFast: '快速发牌', setFastSub: '更快的横幅节奏',
     resetDefaults: '恢复默认', close: '关闭',
+    howToPlay: '玩法说明',
+    rulesTag: '2–4名玩家 · 一台设备 · 每人4点生命 · 守住最后灯火者胜',
+    rLoadH: '装填',
+    rLoadB: '每轮装弹完全公开——比如「2实弹 / 3空弹」——随后盲转弹巢。顶部计数器替你记账。',
+    rTurnH: '你的回合',
+    rTurnB: '先用任意道具，再把左轮指向任何人——包括你自己——长按开枪。',
+    rGoldenH: '黄金法则',
+    rGoldenB: '对自己打出空弹，回合继续。吃下实弹扣 1 点生命——空尖弹上膛则扣 2 点。生命归零，烛火永熄。',
+    rPassH: '传递',
+    rPassB: '只在「设备交接」画面把设备递给下一位——它会藏好所有秘密。',
+    rPropsH: '道具 — 每轮补满 3 件，未用可留',
+    rFooter: '数清子弹 · 读懂人心 · 守住灯火',
+    gotIt: '明白了',
     items: {
       lens:   ['透镜',   '偷看下一发子弹，仅你可见。子弹被打出或移动后情报失效。'],
       flask:  ['酒壶',   '退出下一发子弹，弹种向所有人公开。'],
@@ -1833,6 +1888,10 @@ const ICONS = {
     c: [[2,1],[3,1],[4,1],[5,1],[6,1],[7,1],[8,1],[9,1],[2,10],[3,10],[4,10],[5,10],[6,10],[7,10],[8,10],[9,10],[2,2],[2,3],[2,4],[2,5],[2,6],[2,7],[2,8],[2,9],[9,2],[9,3],[9,4],[9,5],[9,6],[9,7],[9,8],[9,9],[1,3],[1,5],[1,7],[4,4],[5,4],[6,4],[7,4],[4,6],[5,6],[6,6],[7,6],[4,8],[5,8],[6,8]],
     a: [],
   },
+  gear: { // UI chrome, not an item: settings button
+    c: [[4,2],[5,2],[6,2],[7,2],[3,3],[8,3],[2,4],[9,4],[2,5],[9,5],[2,6],[9,6],[2,7],[9,7],[3,8],[8,8],[4,9],[5,9],[6,9],[7,9],[5,5],[6,5],[5,6],[6,6],[5,1],[6,1],[5,10],[6,10],[1,5],[1,6],[10,5],[10,6],[2,2],[9,2],[2,9],[9,9]],
+    a: [],
+  },
 };
 function iconSvg(key, size = 20) {
   const ic = ICONS[key];
@@ -1848,6 +1907,13 @@ function applyLang() {
   els.seedTag.textContent = t('tableNo', SEED) + (DEBUG ? ' · DEBUG' : '');
   const lb = document.getElementById('langbtn');
   if (lb) lb.textContent = LANG === 'en' ? '中文' : 'EN';
+  const sbtn = document.getElementById('settingsbtn');
+  sbtn.innerHTML = iconSvg('gear', 20);
+  sbtn.setAttribute('aria-label', t('settings'));
+  sbtn.title = t('settings');
+  document.getElementById('rulesitems').innerHTML = ITEM_KEYS.map(k =>
+    `<div class="rrow">${iconSvg(k, 18)}<span class="rtext"><span class="rname">${itemName(k)}</span> — <span class="rdesc">${itemDesc(k)}</span></span></div>`
+  ).join('');
 }
 applyLang();
 {
@@ -2179,6 +2245,11 @@ function initSettingsUI() {
   sb.addEventListener('pointerdown', e => e.stopPropagation()); // don't trigger TAP TO BEGIN
   sb.addEventListener('click', e => { e.stopPropagation(); sfx.uiTick(); openSettings(); });
   $('#set-close').addEventListener('click', () => { sfx.uiTick(); ov.removeAttribute('data-active'); });
+  // rules one-pager (top-left of the title screen)
+  const rov = $('#rules'), rb = $('#rulesbtn');
+  rb.addEventListener('pointerdown', e => e.stopPropagation());
+  rb.addEventListener('click', e => { e.stopPropagation(); sfx.uiTick(); rov.setAttribute('data-active', ''); });
+  $('#rules-close').addEventListener('click', () => { sfx.uiTick(); rov.removeAttribute('data-active'); });
   $('#set-reset').addEventListener('click', () => {
     Object.assign(SETTINGS, DEFAULT_SETTINGS);
     saveSettings(); applySettings(); renderSet(); sfx.uiTick();
