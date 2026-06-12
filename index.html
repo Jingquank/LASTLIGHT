@@ -39,6 +39,12 @@ window.addEventListener('load', function () {
   font-style: normal;
   font-display: swap;
 }
+@font-face {
+  /* Fusion Pixel (OFL), subset to this game's glyphs — Simplified Chinese UI */
+  font-family: 'PixelCN';
+  src: url('./PixelCN.woff2') format('woff2');
+  font-display: swap;
+}
 :root {
   --invert-bg: #0E0D0B;
   --invert-bg-elevated: #1A1816;
@@ -52,6 +58,13 @@ window.addEventListener('load', function () {
   --paper: #F3F0EB;
   --font-display: 'Ancho', 'DotGothic16', ui-monospace, monospace;
   --font-body: 'DotGothic16', ui-monospace, 'Courier New', monospace; /* offline: degrade to system terminal voice */
+}
+html[data-lang="zh"] {
+  /* hanzi render in the pixel font; Latin (names, numbers) still hits Ancho/DotGothic first per-glyph */
+  --font-display: 'Ancho', 'PixelCN', 'DotGothic16', ui-monospace, monospace;
+  --font-body: 'PixelCN', 'DotGothic16', ui-monospace, monospace;
+}
+:root {
   --radius: 0px; /* PS1 system chrome: hard corners everywhere */
   /* PS1 memory-card chrome */
   --sys-bg: #0B0B10;
@@ -403,7 +416,11 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   width: 16px; height: 24px; border-radius: 0;
   background: var(--accent); border: 2px solid #00521F; cursor: pointer;
 }
-#settingsbtn { position: absolute; top: max(14px, env(safe-area-inset-top)); right: 14px; font-size: 13px; min-height: 44px; padding: 9px 16px; }
+#title-corner {
+  position: absolute; top: max(14px, env(safe-area-inset-top)); right: 14px;
+  display: flex; gap: 8px;
+}
+#settingsbtn, #langbtn { font-size: 13px; min-height: 44px; padding: 9px 16px; }
 #exitbtn {
   position: absolute; top: max(14px, env(safe-area-inset-top)); left: 14px;
   font-size: 13px; min-height: 44px; padding: 9px 16px; pointer-events: auto;
@@ -461,26 +478,29 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 <div id="ui">
 
   <section class="screen" id="scr-title">
-    <div class="eyebrow" id="title-sub">2&ndash;4 PLAYERS &middot; ONE DEVICE &middot; ONE BULB</div>
+    <div class="eyebrow" id="title-sub" data-i18n="titleSub">2&ndash;4 PLAYERS &middot; ONE DEVICE &middot; ONE BULB</div>
     <div class="display" id="title-name">LAST<br>LIGHT</div>
-    <div class="eyebrow" id="tap-begin">TAP TO BEGIN</div>
+    <div class="eyebrow" id="tap-begin" data-i18n="tapBegin">TAP TO BEGIN</div>
     <div id="seed-tag"></div>
-    <button class="btn btn-ghost" id="settingsbtn">SETTINGS</button>
+    <div id="title-corner">
+      <button class="btn btn-ghost" id="langbtn">中文</button>
+      <button class="btn btn-ghost" id="settingsbtn" data-i18n="settings">SETTINGS</button>
+    </div>
   </section>
 
   <section class="screen sysbg" id="scr-setup">
     <div id="setup-inner">
-      <div class="eyebrow">&mdash; NEW SESSION &mdash;</div>
-      <div class="display" id="setup-title">INSERT PLAYERS</div>
-      <div class="eyebrow" id="setup-sub">4 SLOTS DETECTED &middot; MORTALITY ENABLED</div>
+      <div class="eyebrow" data-i18n="newSession">&mdash; NEW SESSION &mdash;</div>
+      <div class="display" id="setup-title" data-i18n="insertPlayers">INSERT PLAYERS</div>
+      <div class="eyebrow" id="setup-sub" data-i18n="slotsDetected">4 SLOTS DETECTED &middot; MORTALITY ENABLED</div>
       <div id="slotgrid"></div>
-      <button class="btn btn-accent" id="startbtn" style="min-height:54px;min-width:240px;">SIT DOWN</button>
-      <div class="eyebrow" id="setup-legend">2&ndash;4 PLAYERS &middot; TAP + TO INSERT A CARD &middot; &#10006; EJECTS</div>
+      <button class="btn btn-accent" id="startbtn" style="min-height:54px;min-width:240px;" data-i18n="sitDown">SIT DOWN</button>
+      <div class="eyebrow" id="setup-legend" data-i18n="setupLegend">2&ndash;4 PLAYERS &middot; TAP + TO INSERT A CARD &middot; &#10006; EJECTS</div>
     </div>
   </section>
 
   <section class="screen" id="scr-table">
-    <button class="btn btn-ghost" id="exitbtn">PAUSE</button>
+    <button class="btn btn-ghost" id="exitbtn" data-i18n="pause">PAUSE</button>
     <div id="topbar">
       <div class="eyebrow" id="roundlbl"></div>
       <div id="shellctr"><span class="live"></span><span class="blank"></span></div>
@@ -497,62 +517,62 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 
   <section class="screen sysbg" id="scr-handoff">
     <div id="handoff-inner">
-      <div id="passto">&mdash; DEVICE HANDOFF &mdash;</div>
+      <div id="passto" data-i18n="deviceHandoff">&mdash; DEVICE HANDOFF &mdash;</div>
       <div id="memcard"></div>
-      <div id="passlbl">PASS TO &rarr;</div>
+      <div id="passlbl" data-i18n="passTo">PASS TO &rarr;</div>
       <div class="display" id="passname"></div>
-      <button class="holdbtn" id="iam"><span class="fill"></span><span class="lbl"></span><span class="hint">HOLD TO CONFIRM</span></button>
+      <button class="holdbtn" id="iam"><span class="fill"></span><span class="lbl"></span><span class="hint" data-i18n="holdConfirm">HOLD TO CONFIRM</span></button>
     </div>
   </section>
 
   <section class="screen" id="scr-private">
     <div class="display" id="priv-name"></div>
-    <div class="eyebrow">YOUR ITEMS &mdash; PRIVATE</div>
+    <div class="eyebrow" data-i18n="yourItems">YOUR ITEMS &mdash; PRIVATE</div>
     <div id="pitems"></div>
     <div class="display" id="lensline"></div>
-    <div class="eyebrow" id="priv-cont">TAP TO CONTINUE</div>
+    <div class="eyebrow" id="priv-cont" data-i18n="tapContinue">TAP TO CONTINUE</div>
   </section>
 
   <section class="screen" id="scr-over">
-    <div class="eyebrow">THE LAST LIGHT BELONGS TO</div>
+    <div class="eyebrow" data-i18n="lastLightBelongs">THE LAST LIGHT BELONGS TO</div>
     <div class="display" id="winname"></div>
     <div class="eyebrow" id="windetail"></div>
-    <button class="btn btn-accent" id="restartbtn" style="min-height:54px;min-width:200px;">DEAL AGAIN</button>
+    <button class="btn btn-accent" id="restartbtn" style="min-height:54px;min-width:200px;" data-i18n="dealAgain">DEAL AGAIN</button>
   </section>
 
   <div id="banner"><div class="btxt display"></div></div>
 
   <div id="lensov">
-    <div class="eyebrow">PRIVATE &mdash; YOUR EYES ONLY</div>
+    <div class="eyebrow" data-i18n="privateEyes">PRIVATE &mdash; YOUR EYES ONLY</div>
     <div class="display" id="lenstxt"></div>
-    <div class="eyebrow">TAP TO HIDE</div>
+    <div class="eyebrow" data-i18n="tapHide">TAP TO HIDE</div>
   </div>
 
   <div id="settings" class="ovl">
     <div class="panel">
-      <div class="display" style="font-size:clamp(24px,6vw,40px);">SETTINGS</div>
-      <div class="set-row"><span class="set-lbl">VOLUME</span><span class="set-val" id="set-vol-val"></span></div>
+      <div class="display" style="font-size:clamp(24px,6vw,40px);" data-i18n="settings">SETTINGS</div>
+      <div class="set-row"><span class="set-lbl" data-i18n="volume">VOLUME</span><span class="set-val" id="set-vol-val"></span></div>
       <input type="range" id="set-vol" min="0" max="100" step="5" aria-label="Volume">
-      <div class="set-row"><span class="set-lbl">FILM GRAIN<span class="set-sub">SCREEN NOISE TEXTURE</span></span><button class="btn set-tgl" data-key="grain"></button></div>
-      <div class="set-row"><span class="set-lbl">SCANLINES<span class="set-sub">CRT LINE OVERLAY</span></span><button class="btn set-tgl" data-key="scan"></button></div>
-      <div class="set-row"><span class="set-lbl">PS1 DITHER<span class="set-sub">CHUNKY COLOR BANDING</span></span><button class="btn set-tgl" data-key="dither"></button></div>
-      <div class="set-row"><span class="set-lbl">VERTEX WOBBLE<span class="set-sub">WARPING 3D JITTER</span></span><button class="btn set-tgl" data-key="wobble"></button></div>
-      <div class="set-row"><span class="set-lbl">SHAKE &amp; FLASH<span class="set-sub">IMPACT EFFECTS &mdash; PHOTOSENSITIVITY</span></span><button class="btn set-tgl" data-key="shake"></button></div>
-      <div class="set-row"><span class="set-lbl">FAST DEAL<span class="set-sub">QUICKER BANNERS &amp; RITUALS</span></span><button class="btn set-tgl" data-key="fast"></button></div>
+      <div class="set-row"><span class="set-lbl"><span data-i18n="setGrain">FILM GRAIN</span><span class="set-sub" data-i18n="setGrainSub">SCREEN NOISE TEXTURE</span></span><button class="btn set-tgl" data-key="grain"></button></div>
+      <div class="set-row"><span class="set-lbl"><span data-i18n="setScan">SCANLINES</span><span class="set-sub" data-i18n="setScanSub">CRT LINE OVERLAY</span></span><button class="btn set-tgl" data-key="scan"></button></div>
+      <div class="set-row"><span class="set-lbl"><span data-i18n="setDither">PS1 DITHER</span><span class="set-sub" data-i18n="setDitherSub">CHUNKY COLOR BANDING</span></span><button class="btn set-tgl" data-key="dither"></button></div>
+      <div class="set-row"><span class="set-lbl"><span data-i18n="setWobble">VERTEX WOBBLE</span><span class="set-sub" data-i18n="setWobbleSub">WARPING 3D JITTER</span></span><button class="btn set-tgl" data-key="wobble"></button></div>
+      <div class="set-row"><span class="set-lbl"><span data-i18n="setShake">SHAKE &amp; FLASH</span><span class="set-sub" data-i18n="setShakeSub">IMPACT EFFECTS &mdash; PHOTOSENSITIVITY</span></span><button class="btn set-tgl" data-key="shake"></button></div>
+      <div class="set-row"><span class="set-lbl"><span data-i18n="setFast">FAST DEAL</span><span class="set-sub" data-i18n="setFastSub">QUICKER BANNERS &amp; RITUALS</span></span><button class="btn set-tgl" data-key="fast"></button></div>
       <div class="set-row">
-        <button class="btn btn-ghost" id="set-reset" style="font-size:12px;">RESET DEFAULTS</button>
-        <button class="btn btn-accent" id="set-close" style="flex:1;">CLOSE</button>
+        <button class="btn btn-ghost" id="set-reset" style="font-size:12px;" data-i18n="resetDefaults">RESET DEFAULTS</button>
+        <button class="btn btn-accent" id="set-close" style="flex:1;" data-i18n="close">CLOSE</button>
       </div>
     </div>
   </div>
 
   <div id="quitov" class="ovl">
     <div class="panel" style="align-items:center;text-align:center;">
-      <div class="display" style="font-size:clamp(24px,6vw,40px);">PAUSED</div>
-      <div class="eyebrow">THE TABLE FORGETS NO ONE</div>
-      <button class="btn" id="pausesettings" style="min-width:220px;">SETTINGS</button>
-      <button class="holdbtn" id="quithold"><span class="fill"></span><span class="lbl">QUIT MATCH</span><span class="hint">HOLD TO CONFIRM &mdash; PROGRESS LOST</span></button>
-      <button class="btn btn-accent" id="staybtn" style="min-width:220px;">STAY</button>
+      <div class="display" style="font-size:clamp(24px,6vw,40px);" data-i18n="paused">PAUSED</div>
+      <div class="eyebrow" data-i18n="tableForgets">THE TABLE FORGETS NO ONE</div>
+      <button class="btn" id="pausesettings" style="min-width:220px;" data-i18n="settings">SETTINGS</button>
+      <button class="holdbtn" id="quithold"><span class="fill"></span><span class="lbl" data-i18n="quitMatch">QUIT MATCH</span><span class="hint" data-i18n="holdConfirmLost">HOLD TO CONFIRM &mdash; PROGRESS LOST</span></button>
+      <button class="btn btn-accent" id="staybtn" style="min-width:220px;" data-i18n="stay">STAY</button>
     </div>
   </div>
 
@@ -582,16 +602,121 @@ const PAL = {
 };
 // round load table: [live, blank] — R1..R4, R5+ clamps to last entry
 const LOADS = [[1, 3], [2, 3], [2, 2], [3, 2], [4, 2]];
-const ITEMS = {
-  lens:   { name: 'LENS',         desc: 'Peek at the next shell, privately. The knowledge dies when that shell fires or moves.' },
-  flask:  { name: 'FLASK',        desc: 'Eject the next shell unfired. Its type is revealed to everyone.' },
-  cuffs:  { name: 'HANDCUFFS',    desc: 'A chosen player skips their next turn. No stacking cuffs.' },
-  hollow: { name: 'HOLLOW POINT', desc: 'The very next shell fired by anyone deals 2 damage if live. Wasted on a blank.' },
-  cig:    { name: 'CIGARETTE',    desc: 'Restore 1 HP. Cap of 4.' },
-  mirror: { name: 'MIRROR',       desc: 'Swap the next shell with a random other remaining shell. Tells no one anything.' },
-  ledger: { name: 'LEDGER',       desc: 'Steal a random item from a chosen player.' },
+/* ---- i18n: every player-facing string, EN + Simplified Chinese ---- */
+const I18N = {
+  en: {
+    titleSub: '2–4 PLAYERS · ONE DEVICE · ONE BULB', tapBegin: 'TAP TO BEGIN',
+    tableNo: 'TABLE NO. {0}', settings: 'SETTINGS',
+    newSession: '— NEW SESSION —', insertPlayers: 'INSERT PLAYERS',
+    slotsDetected: '4 SLOTS DETECTED · MORTALITY ENABLED',
+    sitDown: 'SIT DOWN', setupLegend: '2–4 PLAYERS · TAP + TO INSERT A CARD · ✕ EJECTS',
+    cardN: 'CARD {0}', insertCard: 'INSERT CARD', playerN: 'P{0}',
+    deviceHandoff: '— DEVICE HANDOFF —', passTo: 'PASS TO →', iAm: 'I AM {0}',
+    holdConfirm: 'HOLD TO CONFIRM',
+    yourItems: 'YOUR ITEMS — PRIVATE', emptyHanded: 'EMPTY HANDED', tapContinue: 'TAP TO CONTINUE',
+    nextShell: 'NEXT SHELL: ', live: 'LIVE', blank: 'BLANK',
+    countLive: '● {0} LIVE', countBlank: '○ {0} BLANK',
+    roundN: 'ROUND {0}', hollowArmed: 'HOLLOW POINT ARMED',
+    yourTurn: '{0} — YOUR TURN', aim: 'AIM ▸', back: 'BACK', pause: 'PAUSE', use: 'USE',
+    cuffedTag: 'CUFFED', seatAvailable: 'SEAT AVAILABLE',
+    pointIt: 'POINT IT — AT ANYONE', blankKeepsTurn: 'A BLANK ON YOURSELF KEEPS THE TURN',
+    barrelOnYou: 'THE BARREL TURNS ON YOU', blankKeepsShort: 'A BLANK KEEPS YOUR TURN',
+    aimedAt: 'AIMED AT {0}', holdFire: 'HOLD TO FIRE',
+    cuffWho: 'CUFF WHO?', robWho: 'ROB WHO?',
+    whyFullHp: 'FULL HP', whyArmed: 'ALREADY ARMED', whyOneShell: 'ONE SHELL LEFT',
+    whyAllCuffed: 'ALREADY CUFFED', whyNoCuff: 'NO ONE TO CUFF', whyNoSteal: 'NOTHING TO STEAL',
+    bLens: '{0} RAISES THE LENS', bEject: 'EJECTED: ', bCuffs: '{0} CUFFS {1}',
+    bHeal: '{0} +1 HP', bMirror: 'THE MIRROR TURNS', bRob: '{0} ROBS {1}',
+    bWasted: 'HOLLOW POINT <span class="t-faint">WASTED</span>', bGone: '{0} IS GONE',
+    bEmpty: 'CYLINDER EMPTY', bGoAgain: '<span class="t-blank">BLANK</span> — GO AGAIN',
+    bSkipped: '{0} CUFFED — SKIPPED', bArmed: '<span class="t-live">HOLLOW POINT</span> ARMED',
+    hpWord: 'HP',
+    privateEyes: 'PRIVATE — YOUR EYES ONLY', tapHide: 'TAP TO HIDE',
+    lastLightBelongs: 'THE LAST LIGHT BELONGS TO', dealAgain: 'DEAL AGAIN',
+    survived1: 'SURVIVED 1 ROUND', survivedN: 'SURVIVED {0} ROUNDS',
+    paused: 'PAUSED', tableForgets: 'THE TABLE FORGETS NO ONE',
+    quitMatch: 'QUIT MATCH', holdConfirmLost: 'HOLD TO CONFIRM — PROGRESS LOST', stay: 'STAY',
+    volume: 'VOLUME', on: 'ON', off: 'OFF',
+    setGrain: 'FILM GRAIN', setGrainSub: 'SCREEN NOISE TEXTURE',
+    setScan: 'SCANLINES', setScanSub: 'CRT LINE OVERLAY',
+    setDither: 'PS1 DITHER', setDitherSub: 'CHUNKY COLOR BANDING',
+    setWobble: 'VERTEX WOBBLE', setWobbleSub: 'WARPING 3D JITTER',
+    setShake: 'SHAKE & FLASH', setShakeSub: 'IMPACT EFFECTS — PHOTOSENSITIVITY',
+    setFast: 'FAST DEAL', setFastSub: 'QUICKER BANNERS & RITUALS',
+    resetDefaults: 'RESET DEFAULTS', close: 'CLOSE',
+    items: {
+      lens:   ['LENS',         'Peek at the next shell, privately. The knowledge dies when that shell fires or moves.'],
+      flask:  ['FLASK',        'Eject the next shell unfired. Its type is revealed to everyone.'],
+      cuffs:  ['HANDCUFFS',    'A chosen player skips their next turn. No stacking cuffs.'],
+      hollow: ['HOLLOW POINT', 'The very next shell fired by anyone deals 2 damage if live. Wasted on a blank.'],
+      cig:    ['CIGARETTE',    'Restore 1 HP. Cap of 4.'],
+      mirror: ['MIRROR',       'Swap the next shell with a random other remaining shell. Tells no one anything.'],
+      ledger: ['LEDGER',       'Steal a random item from a chosen player.'],
+    },
+  },
+  zh: {
+    titleSub: '2–4名玩家 · 一台设备 · 一盏灯', tapBegin: '点击开始',
+    tableNo: '桌号 {0}', settings: '设置',
+    newSession: '— 新的牌局 —', insertPlayers: '插入玩家',
+    slotsDetected: '检测到 4 个插槽 · 死亡已启用',
+    sitDown: '入座', setupLegend: '2–4名玩家 · 点 + 插卡 · ✕ 退卡',
+    cardN: '卡片 {0}', insertCard: '插入卡片', playerN: '玩家{0}',
+    deviceHandoff: '— 设备交接 —', passTo: '传给 →', iAm: '我是 {0}',
+    holdConfirm: '长按确认',
+    yourItems: '你的道具 — 保密', emptyHanded: '两手空空', tapContinue: '点击继续',
+    nextShell: '下一发：', live: '实弹', blank: '空弹',
+    countLive: '● {0} 实弹', countBlank: '○ {0} 空弹',
+    roundN: '第 {0} 轮', hollowArmed: '空尖弹已上膛',
+    yourTurn: '{0} — 你的回合', aim: '瞄准 ▸', back: '返回', pause: '暂停', use: '使用',
+    cuffedTag: '已被铐', seatAvailable: '座位空缺',
+    pointIt: '把枪指向任何人', blankKeepsTurn: '对自己打出空弹可继续行动',
+    barrelOnYou: '枪口对准了你', blankKeepsShort: '空弹则保住回合',
+    aimedAt: '瞄准 {0}', holdFire: '长按开枪',
+    cuffWho: '铐住谁？', robWho: '抢谁的？',
+    whyFullHp: '满血', whyArmed: '已上膛', whyOneShell: '仅剩一发',
+    whyAllCuffed: '都已被铐', whyNoCuff: '无人可铐', whyNoSteal: '无可偷',
+    bLens: '{0} 举起透镜', bEject: '退出：', bCuffs: '{0} 铐住了 {1}',
+    bHeal: '{0} +1 生命', bMirror: '镜子转动了', bRob: '{0} 抢了 {1}',
+    bWasted: '空尖弹<span class="t-faint">浪费了</span>', bGone: '{0} 出局了',
+    bEmpty: '弹巢已空', bGoAgain: '<span class="t-blank">空弹</span> — 再来一次',
+    bSkipped: '{0} 被铐 — 跳过', bArmed: '<span class="t-live">空尖弹</span>已上膛',
+    hpWord: '生命',
+    privateEyes: '保密 — 仅你可见', tapHide: '点击隐藏',
+    lastLightBelongs: '最后的灯火属于', dealAgain: '再来一局',
+    survived1: '历经 1 轮', survivedN: '历经 {0} 轮',
+    paused: '已暂停', tableForgets: '这张桌子不会忘记任何人',
+    quitMatch: '退出牌局', holdConfirmLost: '长按确认 — 进度将丢失', stay: '留下',
+    volume: '音量', on: '开', off: '关',
+    setGrain: '胶片颗粒', setGrainSub: '画面噪点纹理',
+    setScan: '扫描线', setScanSub: 'CRT 线条叠加',
+    setDither: 'PS1 抖动', setDitherSub: '粗粒色彩断层',
+    setWobble: '顶点抖动', setWobbleSub: '3D 扭曲抖动',
+    setShake: '震动与闪光', setShakeSub: '冲击特效 — 光敏注意',
+    setFast: '快速发牌', setFastSub: '更快的横幅节奏',
+    resetDefaults: '恢复默认', close: '关闭',
+    items: {
+      lens:   ['透镜',   '偷看下一发子弹，仅你可见。子弹被打出或移动后情报失效。'],
+      flask:  ['酒壶',   '退出下一发子弹，弹种向所有人公开。'],
+      cuffs:  ['手铐',   '指定一名玩家跳过下一回合。不可重复上铐。'],
+      hollow: ['空尖弹', '任何人打出的下一发实弹造成 2 点伤害。空弹则浪费。'],
+      cig:    ['香烟',   '恢复 1 点生命，上限 4。'],
+      mirror: ['镜子',   '将下一发子弹与剩余弹巢中随机一发交换。谁也不知道结果。'],
+      ledger: ['账本',   '从指定玩家处偷取一件随机道具。'],
+    },
+  },
 };
-const ITEM_KEYS = Object.keys(ITEMS);
+let LANG = (() => {
+  try { const s = localStorage.getItem('ll_lang'); if (s === 'en' || s === 'zh') return s; } catch (e) {}
+  return (navigator.language || '').toLowerCase().startsWith('zh') ? 'zh' : 'en';
+})();
+const t = (k, ...a) => {
+  let s = I18N[LANG][k] ?? I18N.en[k] ?? k;
+  a.forEach((v, i) => { s = s.split('{' + i + '}').join(v); });
+  return s;
+};
+const itemName = k => (I18N[LANG].items[k] || I18N.en.items[k])[0];
+const itemDesc = k => (I18N[LANG].items[k] || I18N.en.items[k])[1];
+const ITEM_KEYS = Object.keys(I18N.en.items);
 
 const params = new URLSearchParams(location.search);
 const DEBUG = params.has('debug');
@@ -672,16 +797,16 @@ function itemLegal(item) {
     case 'flask':  return { ok: true };
     case 'cuffs': {
       const opps = oppIdxs();
-      const t = opps.filter(i => !state.players[i].cuffed);
-      if (t.length) return { ok: true };
-      return { ok: false, why: opps.length ? 'ALREADY CUFFED' : 'NO ONE TO CUFF' };
+      const free = opps.filter(i => !state.players[i].cuffed);
+      if (free.length) return { ok: true };
+      return { ok: false, why: t(opps.length ? 'whyAllCuffed' : 'whyNoCuff') };
     }
-    case 'hollow': return state.hollowPoint ? { ok: false, why: 'ALREADY ARMED' } : { ok: true };
-    case 'cig':    return p.hp < 4 ? { ok: true } : { ok: false, why: 'FULL HP' };
-    case 'mirror': return shellsLeft() >= 2 ? { ok: true } : { ok: false, why: 'ONE SHELL LEFT' };
+    case 'hollow': return state.hollowPoint ? { ok: false, why: t('whyArmed') } : { ok: true };
+    case 'cig':    return p.hp < 4 ? { ok: true } : { ok: false, why: t('whyFullHp') };
+    case 'mirror': return shellsLeft() >= 2 ? { ok: true } : { ok: false, why: t('whyOneShell') };
     case 'ledger': {
-      const t = oppIdxs().filter(i => state.players[i].items.length > 0);
-      return t.length ? { ok: true } : { ok: false, why: 'NOTHING TO STEAL' };
+      const tg = oppIdxs().filter(i => state.players[i].items.length > 0);
+      return tg.length ? { ok: true } : { ok: false, why: t('whyNoSteal') };
     }
   }
   return { ok: false, why: '?' };
@@ -1676,7 +1801,7 @@ const els = {
   winname: $('#winname'), windetail: $('#windetail'), restartbtn: $('#restartbtn'),
 };
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-const shellSpan = type => type === 'live' ? '<span class="t-live">LIVE</span>' : '<span class="t-blank">BLANK</span>';
+const shellSpan = type => type === 'live' ? `<span class="t-live">${t('live')}</span>` : `<span class="t-blank">${t('blank')}</span>`;
 
 // ---- prop icons: hand-drawn 12x12 one-bit outline glyphs (c = outline cells, a = accent cells)
 const ICONS = {
@@ -1715,7 +1840,27 @@ function iconSvg(key, size = 20) {
   const cells = arr => arr.map(([x, y]) => `<rect x="${x}" y="${y}" width="1" height="1"/>`).join('');
   return `<svg class="iicon" viewBox="0 0 12 12" width="${size}" height="${size}" aria-hidden="true"><g fill="currentColor">${cells(ic.c)}</g>${ic.a.length ? `<g fill="var(--accent)">${cells(ic.a)}</g>` : ''}</svg>`;
 }
-els.hpchip.innerHTML = iconSvg('hollow', 14) + '<span>HOLLOW POINT ARMED</span>';
+function applyLang() {
+  document.documentElement.dataset.lang = LANG;
+  document.documentElement.lang = LANG === 'zh' ? 'zh-CN' : 'en';
+  document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); });
+  els.hpchip.innerHTML = iconSvg('hollow', 14) + '<span>' + t('hollowArmed') + '</span>';
+  els.seedTag.textContent = t('tableNo', SEED) + (DEBUG ? ' · DEBUG' : '');
+  const lb = document.getElementById('langbtn');
+  if (lb) lb.textContent = LANG === 'en' ? '中文' : 'EN';
+}
+applyLang();
+{
+  const lb = document.getElementById('langbtn');
+  lb.addEventListener('pointerdown', e => e.stopPropagation()); // don't trigger TAP TO BEGIN
+  lb.addEventListener('click', e => {
+    e.stopPropagation();
+    LANG = LANG === 'en' ? 'zh' : 'en';
+    try { localStorage.setItem('ll_lang', LANG); } catch (err) {}
+    sfx.uiTick();
+    applyLang();
+  });
+}
 
 function show(name) {
   document.querySelectorAll('#ui .screen').forEach(s => s.removeAttribute('data-active'));
@@ -1745,7 +1890,7 @@ function buildPlates() {
     const d = document.createElement('button');
     d.className = 'plate';
     d.dataset.idx = i;
-    d.innerHTML = '<span class="pname"></span><span class="prow hp"></span><span class="prow it"></span><span class="cufftag">CUFFED</span><span class="deadtag">SEAT AVAILABLE</span>';
+    d.innerHTML = `<span class="pname"></span><span class="prow hp"></span><span class="prow it"></span><span class="cufftag">${t('cuffedTag')}</span><span class="deadtag">${t('seatAvailable')}</span>`;
     els.plates.appendChild(d);
     return d;
   });
@@ -1798,9 +1943,9 @@ function projectPlates() {
 
 // ---- top bar + 3D state sync
 function renderAll() {
-  els.roundlbl.textContent = state.round ? 'ROUND ' + state.round : '';
-  els.live.textContent = '● ' + liveLeft() + ' LIVE';
-  els.blank.textContent = '○ ' + blankLeft() + ' BLANK';
+  els.roundlbl.textContent = state.round ? t('roundN', state.round) : '';
+  els.live.textContent = t('countLive', liveLeft());
+  els.blank.textContent = t('countBlank', blankLeft());
   els.hpchip.toggleAttribute('data-on', state.hollowPoint);
   renderPlates();
   syncProps();
@@ -1811,7 +1956,7 @@ const clearBottom = () => { els.handrow.innerHTML = ''; els.actionrow.innerHTML 
 
 // ---- screens
 async function uiTitle() {
-  els.seedTag.textContent = 'TABLE NO. ' + SEED + (DEBUG ? ' · DEBUG' : '');
+  els.seedTag.textContent = t('tableNo', SEED) + (DEBUG ? ' · DEBUG' : '');
   show('title');
   await onceTap(els.title);
   audioInit();
@@ -1837,14 +1982,14 @@ function uiSetup() {
           d.className = 'slot filled';
           const num = document.createElement('span');
           num.className = 'snum eyebrow';
-          num.textContent = 'CARD ' + (i + 1);
+          num.textContent = t('cardN', i + 1);
           const inp = document.createElement('input');
           inp.maxLength = 8;
-          inp.placeholder = 'P' + (i + 1);
+          inp.placeholder = t('playerN', i + 1);
           inp.autocomplete = 'off';
           inp.dataset.i = i;
           inp.value = names[i];
-          inp.setAttribute('aria-label', 'Player ' + (i + 1) + ' name');
+          inp.setAttribute('aria-label', t('playerN', i + 1));
           d.appendChild(num);
           d.appendChild(inp);
           if (count > 2) {
@@ -1867,7 +2012,7 @@ function uiSetup() {
         } else {
           const d = document.createElement('button');
           d.className = 'slot empty';
-          d.innerHTML = '<span class="plus">+</span><span class="eyebrow">INSERT CARD</span>';
+          d.innerHTML = `<span class="plus">+</span><span class="eyebrow">${t('insertCard')}</span>`;
           sc.on(d, 'click', () => { harvest(); count++; sfx.click(0, 0.3); build(); });
           els.slotgrid.appendChild(d);
         }
@@ -1876,7 +2021,7 @@ function uiSetup() {
     build();
     sc.on(els.startbtn, 'click', () => {
       harvest();
-      const out = names.slice(0, count).map((n, i) => (n.trim().toUpperCase().slice(0, 8) || 'P' + (i + 1)));
+      const out = names.slice(0, count).map((n, i) => (n.trim().toUpperCase().slice(0, 8) || t('playerN', i + 1)));
       try { localStorage.setItem('ll_table', JSON.stringify({ count, names: names.slice(0, count) })); } catch (e) {}
       sc.kill();
       sfx.uiTick();
@@ -1889,7 +2034,7 @@ async function uiHandoff(name) {
   clearBottom();
   show('handoff');
   els.passname.textContent = name;
-  els.iamLbl.textContent = 'I AM ' + name;
+  els.iamLbl.textContent = t('iAm', name);
   await holdPromise(els.iam, T.hold);
 }
 
@@ -1897,18 +2042,18 @@ async function uiPrivate(p) {
   show('private');
   els.privName.textContent = p.name;
   els.pitems.innerHTML = p.items.length
-    ? p.items.map(k => `<div class="pitem"><span class="ihead">${iconSvg(k, 22)}<span class="iname">${ITEMS[k].name}</span></span><span class="idesc">${ITEMS[k].desc}</span></div>`).join('')
-    : '<div class="pitem-empty">EMPTY HANDED</div>';
+    ? p.items.map(k => `<div class="pitem"><span class="ihead">${iconSvg(k, 22)}<span class="iname">${itemName(k)}</span></span><span class="idesc">${itemDesc(k)}</span></div>`).join('')
+    : `<div class="pitem-empty">${t('emptyHanded')}</div>`;
   // GDD §4.2 defensive: lens knowledge always expires at the firer's own shot under current
   // rules, so this line is unreachable today — kept so any future rule that lets knowledge
   // survive a handoff (or a skipped fire) renders correctly without a code change.
-  els.lensline.innerHTML = p.lens ? 'NEXT SHELL: ' + shellSpan(p.lens.shell) : '';
+  els.lensline.innerHTML = p.lens ? t('nextShell') + shellSpan(p.lens.shell) : '';
   await onceTap(els.priv); // stays up until the player taps — never advances on its own
   show('table');
 }
 
 async function uiLensReveal(shell) {
-  els.lenstxt.innerHTML = 'NEXT SHELL: ' + shellSpan(shell);
+  els.lenstxt.innerHTML = t('nextShell') + shellSpan(shell);
   els.lensov.setAttribute('data-active', '');
   await onceTap(els.lensov);
   els.lensov.removeAttribute('data-active');
@@ -1919,7 +2064,7 @@ function uiTurnChoice() {
   return new Promise(res => {
     const sc = makeScope();
     const p = cur();
-    els.turnlbl.textContent = p.name + ' — YOUR TURN';
+    els.turnlbl.textContent = t('yourTurn', p.name);
     els.instr.textContent = '';
     els.handrow.innerHTML = '';
     p.items.forEach((k, idx) => {
@@ -1927,7 +2072,7 @@ function uiTurnChoice() {
       const card = document.createElement('button');
       card.className = 'icard';
       card.toggleAttribute('data-illegal', !legal.ok);
-      card.innerHTML = `<span class="ihead">${iconSvg(k, 20)}<span class="iname">${ITEMS[k].name}</span></span><span class="idesc">${ITEMS[k].desc}</span><span class="iwhy">${legal.ok ? '' : legal.why}</span><span class="iuse">USE</span>`;
+      card.innerHTML = `<span class="ihead">${iconSvg(k, 20)}<span class="iname">${itemName(k)}</span></span><span class="idesc">${itemDesc(k)}</span><span class="iwhy">${legal.ok ? '' : legal.why}</span><span class="iuse">${t('use')}</span>`;
       sc.on(card, 'click', e => {
         if (e.target.classList.contains('iuse')) {
           sc.kill();
@@ -1945,7 +2090,7 @@ function uiTurnChoice() {
     const aim = document.createElement('button');
     aim.className = 'btn btn-accent';
     aim.id = 'aimbtn';
-    aim.textContent = 'AIM ▸';
+    aim.textContent = t('aim');
     sc.on(aim, 'click', () => { sc.kill(); sfx.uiTick(); res({ kind: 'aim' }); });
     els.actionrow.appendChild(aim);
   });
@@ -1970,7 +2115,7 @@ function uiPickTarget(valid, { label = 'CHOOSE A TARGET', cancellable = true } =
     if (cancellable) {
       const c = document.createElement('button');
       c.className = 'btn btn-ghost';
-      c.textContent = 'BACK';
+      c.textContent = t('back');
       sc.on(c, 'click', () => { sfx.uiTick(); done(null); });
       els.actionrow.appendChild(c);
     }
@@ -1982,16 +2127,16 @@ function uiFireConfirm(targetIdx) {
     const sc = makeScope();
     clearBottom();
     const tname = state.players[targetIdx].name;
-    if (targetIdx === state.turn) els.instr.innerHTML = 'THE BARREL TURNS ON YOU<span class="instr-sub">A BLANK KEEPS YOUR TURN</span>';
-    else els.instr.textContent = 'AIMED AT ' + tname;
+    if (targetIdx === state.turn) els.instr.innerHTML = t('barrelOnYou') + `<span class="instr-sub">${t('blankKeepsShort')}</span>`;
+    else els.instr.textContent = t('aimedAt', tname);
     plateEls[targetIdx].setAttribute('data-aimed', '');
     const fire = document.createElement('button');
     fire.className = 'holdbtn';
     fire.id = 'firebtn';
-    fire.innerHTML = '<span class="fill"></span><span class="lbl">HOLD TO FIRE</span>';
+    fire.innerHTML = `<span class="fill"></span><span class="lbl">${t('holdFire')}</span>`;
     const c = document.createElement('button');
     c.className = 'btn btn-ghost';
-    c.textContent = 'BACK';
+    c.textContent = t('back');
     els.actionrow.appendChild(fire);
     els.actionrow.appendChild(c);
     const done = v => {
@@ -2009,7 +2154,7 @@ async function uiGameOver() {
   const wp = state.players[state.winner];
   show('over');
   els.winname.textContent = wp.name;
-  els.windetail.textContent = 'SURVIVED ' + state.round + (state.round === 1 ? ' ROUND' : ' ROUNDS');
+  els.windetail.textContent = state.round === 1 ? t('survived1') : t('survivedN', state.round);
   await new Promise(res => {
     const off = listen(els.restartbtn, 'click', () => { off(); sfx.uiTick(); res(); });
   });
@@ -2025,7 +2170,7 @@ function initSettingsUI() {
     volVal.textContent = Math.round(SETTINGS.vol * 100) + '%';
     document.querySelectorAll('.set-tgl').forEach(btn => {
       const on = !!SETTINGS[btn.dataset.key];
-      btn.textContent = on ? 'ON' : 'OFF';
+      btn.textContent = on ? t('on') : t('off');
       btn.toggleAttribute('data-on', on);
     });
   };
@@ -2079,27 +2224,27 @@ function initExitUI() {
 const pname = i => esc(state.players[i].name);
 const bico = (k, s = 34) => `<span class="bico">${iconSvg(k, s)}</span>`;
 const EVH = {
-  async LENS_USED(e) { sfx.click(0, 0.2); await showBanner(bico('lens') + pname(e.player) + ' RAISES THE LENS', { dur: 850 }); },
+  async LENS_USED(e) { sfx.click(0, 0.2); await showBanner(bico('lens') + t('bLens', pname(e.player)), { dur: 850 }); },
   async LENS_RESULT(e) { await uiLensReveal(e.shell); },
   async FLASK_EJECT(e) {
     await ejectShellAnim(e.type);
     renderAll();
-    await showBanner(bico('flask') + 'EJECTED: ' + shellSpan(e.type));
+    await showBanner(bico('flask') + t('bEject') + shellSpan(e.type));
   },
-  async CUFFED(e) { sfx.cuff(); renderAll(); await showBanner(bico('cuffs') + pname(e.player) + ' CUFFS ' + pname(e.target)); },
-  async HOLLOW_ARMED() { sfx.click(0, 0.3); renderAll(); await showBanner(bico('hollow') + '<span class="t-live">HOLLOW POINT</span> ARMED'); },
-  async HEALED(e) { sfx.heal(); setFlames(e.player, e.hp, true); renderAll(); await showBanner(bico('cig') + pname(e.player) + ' +1 HP', { dur: 850 }); },
-  async MIRROR_USED() { sfx.shimmer(); await cylJiggle(); renderAll(); await showBanner(bico('mirror') + 'THE MIRROR TURNS', { dur: 950 }); },
-  async STOLEN(e) { sfx.click(0, 0.25); renderAll(); await showBanner(bico('ledger') + pname(e.player) + ' ROBS ' + pname(e.target)); },
-  async HOLLOW_WASTED() { sfx.wasted(); await showBanner(bico('hollow') + 'HOLLOW POINT <span class="t-faint">WASTED</span>'); },
+  async CUFFED(e) { sfx.cuff(); renderAll(); await showBanner(bico('cuffs') + t('bCuffs', pname(e.player), pname(e.target))); },
+  async HOLLOW_ARMED() { sfx.click(0, 0.3); renderAll(); await showBanner(bico('hollow') + t('bArmed')); },
+  async HEALED(e) { sfx.heal(); setFlames(e.player, e.hp, true); renderAll(); await showBanner(bico('cig') + t('bHeal', pname(e.player)), { dur: 850 }); },
+  async MIRROR_USED() { sfx.shimmer(); await cylJiggle(); renderAll(); await showBanner(bico('mirror') + t('bMirror'), { dur: 950 }); },
+  async STOLEN(e) { sfx.click(0, 0.25); renderAll(); await showBanner(bico('ledger') + t('bRob', pname(e.player), pname(e.target))); },
+  async HOLLOW_WASTED() { sfx.wasted(); await showBanner(bico('hollow') + t('bWasted')); },
   async ELIMINATED(e) {
     sfx.elim();
     await eliminateSeat(e.player);
     renderAll();
-    await showBanner(pname(e.player) + ' IS GONE', { dur: T.bannerBig });
+    await showBanner(t('bGone', pname(e.player)), { dur: T.bannerBig });
   },
-  async ROUND_END() { await showBanner('CYLINDER EMPTY', { dur: 900 }); },
-  async EXTRA_TURN() { await showBanner('<span class="t-blank">BLANK</span> — GO AGAIN', { dur: 950 }); },
+  async ROUND_END() { await showBanner(t('bEmpty'), { dur: 900 }); },
+  async EXTRA_TURN() { await showBanner(t('bGoAgain'), { dur: 950 }); },
   async WIN(e) {
     // "the last light": the bulb steadies, the camera finds the survivor, their candles flare
     steadyBulb();
@@ -2108,7 +2253,7 @@ const EVH = {
     flareSeat(e.player);
     await wait(2100);
   },
-  async SKIPPED(e) { sfx.cuff(); renderAll(); await showBanner(bico('cuffs') + pname(e.player) + ' CUFFED — SKIPPED'); },
+  async SKIPPED(e) { sfx.cuff(); renderAll(); await showBanner(bico('cuffs') + t('bSkipped', pname(e.player))); },
 };
 async function playEvents(ev) {
   for (const e of ev) { const h = EVH[e.t]; if (h) await h(e); }
@@ -2120,9 +2265,9 @@ async function doRoundLoad() {
   const rs = ev.find(e => e.t === 'ROUND_START');
   show('table');
   renderAll();
-  await showBanner('ROUND ' + rs.round, { dur: T.bannerBig });
+  await showBanner(t('roundN', rs.round), { dur: T.bannerBig });
   await layShells(rs.live, rs.blank); // shown publicly, in full view
-  await showBanner(`<span class="t-live">${rs.live} LIVE</span> — <span class="t-blank">${rs.blank} BLANK</span>`, { dur: T.bannerBig });
+  await showBanner(`<span class="t-live">${rs.live} ${t('live')}</span> — <span class="t-blank">${rs.blank} ${t('blank')}</span>`, { dur: T.bannerBig });
   await loadShells(); // hidden random order: shells go dark before loading
   await spinCylinder();
   renderAll();
@@ -2152,7 +2297,7 @@ async function animShot(e) {
   // speak the result — the table must be able to read it from a meter away.
   // (blank+self stays quiet here: the EXTRA_TURN banner narrates that case)
   if (e.shell === 'live') {
-    await showBanner(shellSpan('live') + ' — ' + pname(e.target) + ' -' + e.dmg + ' HP', { dur: 950 });
+    await showBanner(shellSpan('live') + ' — ' + pname(e.target) + ' -' + e.dmg + ' ' + t('hpWord'), { dur: 950 });
   } else if (e.target !== e.shooter) {
     await showBanner(shellSpan('blank'), { dur: 800 });
   }
@@ -2186,7 +2331,7 @@ async function playTurn() {
       let target;
       const tgs = itemTargets(act.item);
       if (tgs) {
-        target = await uiPickTarget(tgs, { label: act.item === 'cuffs' ? bico('cuffs', 26) + 'CUFF WHO?' : bico('ledger', 26) + 'ROB WHO?' });
+        target = await uiPickTarget(tgs, { label: act.item === 'cuffs' ? bico('cuffs', 26) + t('cuffWho') : bico('ledger', 26) + t('robWho') });
         if (target === null) continue;
       }
       uiLock();
@@ -2198,7 +2343,7 @@ async function playTurn() {
       continue;
     }
     // aim
-    const target = await uiPickTarget(livingIdxs(), { label: 'POINT IT — AT ANYONE<span class="instr-sub">A BLANK ON YOURSELF KEEPS THE TURN</span>' });
+    const target = await uiPickTarget(livingIdxs(), { label: t('pointIt') + `<span class="instr-sub">${t('blankKeepsTurn')}</span>` });
     if (target === null) continue;
     aimGunAt(target);
     await camAim(target); // camera pushes in along the barrel axis

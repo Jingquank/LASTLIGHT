@@ -2,7 +2,9 @@
 
 A turn-based Russian-roulette duel for 2–4 players sharing one device. A revolver, a table, a single swinging bulb. PS1-era survival horror, in one self-contained HTML file.
 
-Three.js from CDN; all geometry procedural, all audio synthesized, all textures canvas-generated. The only assets are fonts (Google Fonts **DotGothic16** for UI/body + local **Ancho UltraBold** for display moments, which degrades gracefully if missing).
+Three.js from CDN; all geometry procedural, all audio synthesized, all textures canvas-generated. The only assets are fonts: Google Fonts **DotGothic16** (UI/body), local **Ancho UltraBold** (display moments, degrades gracefully), and a local **Fusion Pixel** subset (`PixelCN.woff2`, OFL — see `PixelCN-LICENSE.txt`) for the Simplified Chinese UI.
+
+**Languages**: English / 简体中文 — toggle on the title screen (next to SETTINGS). Auto-detects `zh-*` browsers; choice persists. Note: `PixelCN.woff2` is subset to the exact glyphs used — if you edit Chinese strings, re-subset from [fusion-pixel-font](https://github.com/TakWolf/fusion-pixel-font) with fontTools.
 
 ## Run
 
